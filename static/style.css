@@ -1,0 +1,496 @@
+/* Reset some default browser styling */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap");
+* {
+     
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+    /*font-family: 'Poppins', sans-serif; /* Default font */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    
+
+}
+
+
+h1, h2 {
+    font-family: sans-serif;
+    font-weight: 400;
+  }
+  
+  a {
+    text-decoration: none;
+  }
+  
+  li {
+    list-style: none;
+    
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  .flex_space {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  button {
+    border: none;
+    border-radius: 30px;
+    background: none;
+    outline: none;
+    transition: 0.5s;
+    cursor: pointer;
+  
+  }
+
+  .primary-btn {
+    padding: 15px 40px;
+    background: #7fc142;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .secondary-btn {
+    padding: 15px 40px;
+    background: none;
+    border: 2px solid white;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .container {
+    max-width: 85%;
+    margin: auto;
+  }
+
+/* Header Section */
+header {
+    height: 10vh;
+    line-height: 10vh;
+    padding: 0 20px;
+    margin-bottom: auto;
+}
+
+header img {
+    margin: 20px 0;
+}
+
+header ul {
+    display: inline-block;
+}
+
+header ul li {
+    display: inline-block;
+    text-transform: uppercase;
+}
+
+header ul li a {
+    color: #000;
+    margin: 0 10px;
+    transition: 0.5s;
+}
+
+header ul li a:hover {
+    color: #7fc142;
+}
+
+header i {
+    margin: 0 20px;
+}
+
+header button {
+    padding: 13px 40px;
+}
+
+header .navlinks span {
+    display: none;
+}
+
+header .navlinks ul li .link {
+    text-decoration: none;
+    font-weight: 500;
+    color: #000;
+    padding-bottom: 15px;
+    margin: 0 25px;
+}
+
+.link:hover, .active {
+    border-bottom: 2px solid #fff;
+}
+
+#registerBtn {
+    margin-left: 15px;
+}
+
+.btn.white-btn {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+/* Media Queries for Responsiveness */
+@media only screen and (max-width: 768px) {
+    header ul {
+        position: absolute;
+        top: 100px;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: #009f7f;
+        overflow: hidden;
+        transition: max-height 0.5s;
+        text-align: center;
+        z-index: 9;
+    }
+
+    header ul li {
+        display: block;
+    }
+
+    header ul li a {
+        color: white;
+    }
+
+    header i {
+        color: white;
+    }
+
+    header .navlinks span {
+        color: black;
+        display: block;
+        cursor: pointer;
+        line-height: 10vh;
+        font-size: 20px;
+    }
+}
+
+/* main content
+
+/* Main content section */
+.main-content {
+    background-color: #fff;
+    padding: 60px 20px;
+    text-align: center;
+    margin-top: 20px; /* Adds space between header and content */
+}
+
+.main-content .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.main-content h2 {
+    font-size: 32px;
+    color: #2980b9;
+    margin-bottom: 20px;
+}
+
+.main-content p {
+    font-size: 18px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.main-content .btn.primary-btn {
+    background-color: #2980b9;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 18px;
+    transition: background-color 0.3s;
+}
+
+.main-content .btn.primary-btn:hover {
+    background-color: #3498db;
+}
+
+
+/* Footer Section */
+footer {
+    background: linear-gradient(to bottom, #2c3e50, #34495e);
+    color: #ecf0f1;
+    padding: 40px 0;
+    margin-top: auto;
+}
+
+footer .container {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+footer .box {
+    width: 30%;
+}
+
+footer .box h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+footer .box ul {
+    list-style-type: none;
+}
+
+footer .box ul li {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+footer .box .icon {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+footer .box .icon i {
+    color: #ecf0f1;
+    font-size: 20px;
+    transition: 0.3s;
+}
+
+footer .box .icon i:hover {
+    color: #3498db;
+}
+
+footer .box p {
+    margin-bottom: 15px;
+}
+
+footer .box i {
+    margin-right: 10px;
+}
+
+footer .box label {
+    display: block;
+}
+
+/* Legal Section */
+.legal {
+    background-color: #34495e;
+    color: #ecf0f1;
+    text-align: center;
+    padding: 10px;
+    margin-top: 50px;
+    font-size: 14px;
+}
+
+/*--------------------Login--------------------------------------------
+/* Form Container */
+/* Ensure the body takes full height and is a flex container */
+/* Ensure the body takes full height and is a flex container */
+
+/* Form Content Section */
+.form-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Ensures the section takes at least 80% of the viewport height */
+    background: #f4f7fc; /* Optional, to add background color */
+}
+
+.form-content .container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Container width */
+    padding: 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: .5s ease-in-out;
+}
+
+.form-content .container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2980b9;
+    margin-bottom: 20px;
+}
+
+.form-content .container form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-content .container label {
+    font-size: 16px;
+    color: #333;
+    text-align: left;
+}
+
+.form-content .container input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.form-content .container input:focus {
+    border-color: #2980b9;
+    outline: none;
+}
+
+.form-content .container button {
+    padding: 12px;
+    font-size: 18px;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-content .container button:hover {
+    background-color: #3498db;
+}
+
+/* Link to Register Page */
+p {
+    font-size: 14px;
+    color: #333;
+}
+
+p a {
+    color: #2980b9;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+
+/* -----------------------------Register Form Section -------------------*/
+.register-form-content {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+    align-items: center;
+    min-height: 80vh; /* Ensure the section takes at least 80% of the viewport height */
+    background: #f4f7fc; /* Optional background color for the section */
+}
+
+.register-form-content .container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px; /* Container width */
+    padding: 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: .5s ease-in-out;
+}
+
+.register-form-content .container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2980b9;
+    margin-bottom: 20px;
+}
+
+.register-form-content .container form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.register-form-content .container label {
+    font-size: 16px;
+    color: #333;
+    text-align: left;
+}
+
+.register-form-content .container select, 
+.register-form-content .container input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.register-form-content .container select:focus, 
+.register-form-content .container input:focus {
+    border-color: #2980b9;
+    outline: none;
+}
+
+.register-form-content .container button {
+    padding: 12px;
+    font-size: 18px;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.register-form-content .container button:hover {
+    background-color: #3498db;
+}
+
+/* Remember Me and Terms Links */
+.register-form-content .two-col {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.register-form-content .two-col .one {
+    display: flex;
+    align-items: center;
+}
+
+.register-form-content .two-col .one input {
+    margin-right: 8px;
+}
+
+.register-form-content .two-col .two a {
+    color: #2980b9;
+    text-decoration: none;
+}
+
+.register-form-content .two-col .two a:hover {
+    text-decoration: underline;
+}
+
+/* Link to Login Page */
+p {
+    font-size: 14px;
+    color: #333;
+}
+
+p a {
+    color: #2980b9;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
