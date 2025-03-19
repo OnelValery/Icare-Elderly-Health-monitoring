@@ -25,8 +25,8 @@ def create_doctors():
             last_name VARCHAR(100) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
-            address TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            address TEXT
+            
         );
     """)
     db.commit()
@@ -59,7 +59,6 @@ def create_patients():
             password VARCHAR(255) NOT NULL,
             address TEXT,
             doctor_id VARCHAR(7) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT fk_doctor FOREIGN KEY (doctor_id)
                 REFERENCES icare.doctors(doctor_id) ON UPDATE CASCADE ON DELETE CASCADE
         );
@@ -90,11 +89,9 @@ def create_caregivers():
             caregiver_id VARCHAR(25) PRIMARY KEY,
             first_name VARCHAR(100) NOT NULL,
             last_name VARCHAR(100) NOT NULL,
-            phone_number VARCHAR(20),
             email VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
-            address TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            address TEXT
         );
     """)
     db.commit()
@@ -125,32 +122,51 @@ def create_patients_caregivers():
             CONSTRAINT pk_patients_caregivers PRIMARY KEY (patient_id, caregiver_id),
             CONSTRAINT fk_patient FOREIGN KEY (patient_id)
                 REFERENCES icare.patients(patient_id) ON UPDATE CASCADE ON DELETE CASCADE,
+                
             CONSTRAINT fk_caregiver FOREIGN KEY (caregiver_id)
                 REFERENCES icare.caregivers(caregiver_id) ON UPDATE CASCADE ON DELETE CASCADE
+                
         );
     """)
     db.commit()
 
-def create_tasks():
+def create_patient_tasks():
     db.raw_query("""
-        CREATE TABLE IF NOT EXISTS icare.tasks (
-            task_id SERIAL PRIMARY KEY,
-            task_description TEXT NOT NULL,
-            scheduled_date TIMESTAMP NOT NULL,
-            status VARCHAR(20) DEFAULT 'Pending',  -- e.g., Pending, Completed
-            assigned_by VARCHAR(7) NOT NULL,  -- doctor_id who assigns the task
-            assigned_to character varying(25) ,  -- patient_id or caregiver_id
-            task_type VARCHAR(50),  -- 'patient' or 'caregiver' to know who is assigned
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_doctor FOREIGN KEY (assigned_by)
-                REFERENCES doctors(doctor_id) ON UPDATE CASCADE ON DELETE CASCADE,
-            CONSTRAINT fk_patient FOREIGN KEY (assigned_to)
-                REFERENCES patients(patient_id) ON UPDATE CASCADE ON DELETE CASCADE,
-            CONSTRAINT fk_caregiver FOREIGN KEY (assigned_to)
-                REFERENCES caregivers(caregiver_id) ON UPDATE CASCADE ON DELETE CASCADE
-        );
+    CREATE TABLE IF NOT EXISTS icare.patient_tasks (
+        patient_task_id SERIAL PRIMARY KEY,
+        task_description TEXT NOT NULL,
+        scheduled_date TIMESTAMP NOT NULL,
+        status VARCHAR(20) DEFAULT 'Pending',
+        assigned_by VARCHAR(7) NOT NULL,
+        assigned_for character varying(25) NOT NULL,
+        CONSTRAINT fk_doctor FOREIGN KEY (assigned_by)
+            REFERENCES doctors(doctor_id) ON UPDATE CASCADE ON DELETE CASCADE
+        
+    );
     """)
     db.commit()
+    
+
+def create_caregiver_tasks():
+    db.raw_query("""
+    CREATE TABLE IF NOT EXISTS icare.caregiver_tasks (
+        caregiver_task_id SERIAL PRIMARY KEY,
+        task_description TEXT NOT NULL,
+        scheduled_date TIMESTAMP NOT NULL,
+        status VARCHAR(20) DEFAULT 'Pending',
+        assigned_by VARCHAR(7) NOT NULL,
+        caregiver_id VARCHAR(7) NOT NULL,
+        patient_id character varying(25) NOT NULL,
+        CONSTRAINT fk_doctor FOREIGN KEY (assigned_by)
+            REFERENCES doctors(doctor_id) ON UPDATE CASCADE ON DELETE CASCADE,
+        CONSTRAINT fk_caregiver FOREIGN KEY (caregiver_id)
+            REFERENCES caregivers(caregiver_id) ON UPDATE CASCADE ON DELETE CASCADE
+       
+    );
+    """)
+    db.commit()
+    
+
 
 def create_task_followups():
     db.raw_query("""
@@ -161,32 +177,156 @@ def create_task_followups():
             message TEXT NOT NULL,
             sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT fk_task FOREIGN KEY (task_id)
-                REFERENCES tasks(task_id) ON UPDATE CASCADE ON DELETE CASCADE,
+                REFERENCES caregiver_tasks(caregiver_task_id) ON UPDATE CASCADE ON DELETE CASCADE,
             CONSTRAINT fk_doctor FOREIGN KEY (doctor_id)
                 REFERENCES doctors(doctor_id) ON UPDATE CASCADE ON DELETE CASCADE
         );
     """)
     db.commit()
     
-def create_patient_data():
+
+
+# Devices table
+def create_devices():
     db.raw_query("""
-        CREATE TABLE IF NOT EXISTS icare.patient_data (
-            data_id SERIAL PRIMARY KEY,            -- Unique ID for each record
-            patient_id character varying(25) COLLATE pg_catalog."default" NOT NULL,           -- Foreign key to patients
-            device_id VARCHAR(50) NOT NULL,        -- ESP32 identifier in case multiple devices per patient
-            heart_rate INTEGER,                    -- Heart rate in BPM
-            temperature DECIMAL(5,2),              -- Temperature in °C or °F
-            blood_pressure_systolic INTEGER,       -- Systolic blood pressure
-            blood_pressure_diastolic INTEGER,      -- Diastolic blood pressure
-            spO2 DECIMAL(5,2),                     -- Oxygen saturation
-            ecg_signal BYTEA,                      -- ECG data (binary blob for signal)
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Exact time of measurement
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Time of insertion
-            CONSTRAINT fk_patient FOREIGN KEY (patient_id)
-                REFERENCES patients(patient_id) ON DELETE CASCADE
+        CREATE TABLE IF NOT EXISTS icare.devices (
+            device_id VARCHAR(20) PRIMARY KEY,    -- Unique device ID
+            battery_percentage FLOAT NOT NULL
         );
     """)
     db.commit()
+
+
+# Patient-Device relationship table
+def create_patient_device():
+    db.raw_query("""
+        CREATE TABLE IF NOT EXISTS icare.patient_device (
+            patient_id VARCHAR(10) NOT NULL,
+            device_id VARCHAR(20) NOT NULL UNIQUE,  -- One device per patient
+            linked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_patient FOREIGN KEY (patient_id)
+                REFERENCES icare.patients(patient_id) ON DELETE CASCADE ON UPDATE CASCADE,
+            CONSTRAINT fk_device FOREIGN KEY (device_id)
+                REFERENCES icare.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE,
+            PRIMARY KEY (patient_id, device_id)
+        );
+    """)
+    db.commit()
+
+
+# Step counting data
+def create_step_counting():
+    db.raw_query("""
+        CREATE TABLE IF NOT EXISTS icare.step_counting (
+            step_id SERIAL PRIMARY KEY,
+            device_id VARCHAR(20) NOT NULL,
+            time_seconds BIGINT NOT NULL,
+            step_count INT NOT NULL,
+            acceleration_mag FLOAT NOT NULL,
+            CONSTRAINT fk_device FOREIGN KEY (device_id)
+                REFERENCES icare.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    """)
+    db.commit()
+
+
+# Gyroscope data
+def create_gyroscope():
+    db.raw_query("""
+        CREATE TABLE IF NOT EXISTS icare.gyroscope (
+            gyroscope_id SERIAL PRIMARY KEY,
+            device_id VARCHAR(20) NOT NULL,
+            time_seconds BIGINT NOT NULL,
+            rotation_speed FLOAT NOT NULL,
+            gyroscope_x FLOAT NOT NULL,
+            gyroscope_y FLOAT NOT NULL,
+            gyroscope_z FLOAT NOT NULL,
+            CONSTRAINT fk_device FOREIGN KEY (device_id)
+                REFERENCES icare.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    """)
+    db.commit()
+
+
+# Accelerometer data
+def create_accelerometer():
+    db.raw_query("""
+        CREATE TABLE IF NOT EXISTS icare.accelerometer (
+            accelerometer_id SERIAL PRIMARY KEY,
+            device_id VARCHAR(20) NOT NULL,
+            acceleration FLOAT NOT NULL,
+            time_seconds BIGINT NOT NULL,
+            accelerometer_x FLOAT NOT NULL,
+            accelerometer_y FLOAT NOT NULL,
+            accelerometer_z FLOAT NOT NULL,
+            CONSTRAINT fk_device FOREIGN KEY (device_id)
+                REFERENCES icare.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    """)
+    db.commit()
+
+
+# Fall detection data
+def create_fall_detection():
+    db.raw_query("""
+        CREATE TABLE IF NOT EXISTS icare.fall_detection (
+            fall_detection_id SERIAL PRIMARY KEY,
+            device_id VARCHAR(20) NOT NULL,
+            fall_detected BOOLEAN NOT NULL,
+            time_of_fall BIGINT NOT NULL,  -- In UNIX timestamp (milliseconds),
+            CONSTRAINT fk_device FOREIGN KEY (device_id)
+                REFERENCES icare.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    """)
+    db.commit()
+
+
+# Heart rate data
+def create_heart_rate():
+    db.raw_query("""
+        CREATE TABLE IF NOT EXISTS icare.heart_rate (
+            heart_rate_id SERIAL PRIMARY KEY,
+            device_id VARCHAR(20) NOT NULL,
+            bpm INT NOT NULL,
+            beat_average FLOAT NOT NULL,
+            time_seconds BIGINT NOT NULL,
+            heart_rate_value BIGINT NOT NULL,
+            CONSTRAINT fk_device FOREIGN KEY (device_id)
+                REFERENCES icare.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    """)
+    db.commit()
+
+
+# SpO2 data
+def create_spo2():
+    db.raw_query("""
+        CREATE TABLE IF NOT EXISTS icare.spo2 (
+            spo2_id SERIAL PRIMARY KEY,
+            device_id VARCHAR(20) NOT NULL,
+            time_seconds BIGINT NOT NULL,
+            spo2_percent INT NOT NULL,
+            CONSTRAINT fk_device FOREIGN KEY (device_id)
+                REFERENCES icare.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    """)
+    db.commit()
+
+
+# Temperature data
+def create_temperature():
+    db.raw_query("""
+        CREATE TABLE IF NOT EXISTS icare.temperature (
+            temperature_id SERIAL PRIMARY KEY,
+            device_id VARCHAR(20) NOT NULL,
+            temperature FLOAT NOT NULL,
+            time_seconds BIGINT NOT NULL,
+            CONSTRAINT fk_device FOREIGN KEY (device_id)
+                REFERENCES icare.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    """)
+    db.commit()
+
 
 
  
@@ -210,6 +350,7 @@ def insert_patient_phone_number(patient_id, phone_number):
     db.commit()
     
 def insert_doctor_phone_number(doctor_id, phone_number):
+    
     """ Insert a phone number for a doctor """
     db.raw_query("""
         INSERT INTO icare.doctor_phone_numbers (doctor_id, phone_number)
@@ -218,78 +359,69 @@ def insert_doctor_phone_number(doctor_id, phone_number):
     
     db.commit()
     
-def insert_patient_data(patient_id, device_id, heart_rate, temperature, bp_systolic, bp_diastolic, spO2, ecg_signal, timestamp):
+
+
+def mark_patient_task_completed(task_id, is_for_patient=True):
+    """ Mark a task as completed """
+   
+    db.raw_query("""
+        UPDATE icare.patient_tasks
+        SET status = 'Completed'
+        WHERE patient_task_id = %s;
+    """, (task_id,))
+
+    db.commit()
+    
+def mark_caregiver_task_completed(task_id, is_for_patient=True):
+    """ Mark a task as completed """
+   
+    db.raw_query("""
+        UPDATE icare.caregiver_tasks
+        SET status = "Completed"
+        WHERE caregiver_task_id = %s;
+    """, (task_id,))
+
+    db.commit()
+    
+def insert_patient_task(task_id, description, scheduled_date, status, assigned_by, assigned_to):
     """
-    Insert time-series patient data from ESP32
+    Insert a new task assigned by a doctor to a patient 
     """
     db.raw_query("""
-        INSERT INTO icare.patient_data (
-            patient_id, device_id, heart_rate, temperature, 
-            blood_pressure_systolic, blood_pressure_diastolic, 
-            spO2, ecg_signal, timestamp
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-    """, (
-        patient_id, device_id, heart_rate, temperature,
-        bp_systolic, bp_diastolic, spO2, ecg_signal, timestamp
-    ))
-
-    db.commit()
-
-def mark_task_completed(task_id, is_for_patient=True):
-    """ Mark a task as completed """
-    if is_for_patient:
-        db.raw_query("""
-            UPDATE icare.task_for_patient
-            SET completed = TRUE
-            WHERE task_id = %s;
-        """, (task_id,))
-    else:
-        db.raw_query("""
-            UPDATE icare.task_for_caregivers
-            SET completed = TRUE
-            WHERE task_id = %s;
-        """, (task_id,))
-
+        INSERT INTO icare.patient_tasks(patient_task_id, task_description, scheduled_date, status, assigned_by,patient_id)
+        VALUES (%s, %s, %s, %s,%s,%s);
+    """, (task_id, description, scheduled_date, status, assigned_by, assigned_to))
+    
     db.commit()
     
-def insert_task(doctor_id, assigned_to, assigned_type, description, scheduled_for):
+def insert_caregiver_task(task_id, description, scheduled_date, status, assigned_by, assigned_to,assigned_for,patient_id):
     """
-    Insert a new task assigned by a doctor to a patient or caregiver.
-    
-    assigned_type: 'patient' or 'caregiver'
+    Insert a new task assigned by a doctor to a  caregiver.
     """
-    if assigned_type == 'patient':
-        db.raw_query("""
-            INSERT INTO task_for_patient (doctor_id, patient_id, description, scheduled_for)
-            VALUES (%s, %s, %s, %s);
-        """, (doctor_id, assigned_to, description, scheduled_for))
-
-    elif assigned_type == 'caregiver':
-        db.raw_query("""
-            INSERT INTO task_for_caregivers (doctor_id, caregiver_id, description, scheduled_for)
-            VALUES (%s, %s, %s, %s);
-        """, (doctor_id, assigned_to, description, scheduled_for))
+    db.raw_query("""
+        INSERT INTO icare.caregiver_tasks(caregiver_task_id, task_description, scheduled_date, status, assigned_by, caregiver_id,patient_id)
+        VALUES (%s, %s, %s, %s,%s,%s,%s);
+    """, (task_id, description, scheduled_date, status, assigned_by, assigned_to,assigned_for,patient_id))
     
     db.commit()
     
 def assign_caregiver_to_patient(patient_id, caregiver_id):
     """ Assign a caregiver to a patient """
     db.raw_query("""
-        UPDATE patients
+        UPDATE icare.patients_caregivers
         SET caregiver_id = %s
         WHERE patient_id = %s;
     """, (caregiver_id, patient_id))
     
     db.commit()
     
-def insert_doctor(firstname, lastname, phone_number, email, password, address):
+def insert_doctor(doctor_id,firstname, lastname, phone_number, email, password, address):
     """ Insert a new doctor into the doctors table """
      # Generate a unique 7-digit ID
-    doctor_id = str(random.randint(1000000, 9999999))
+    doctor_id 
     db.raw_query("""
-        INSERT INTO doctors (doctor_id, firstname, lastname, email, password, address)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO icare.doctors (doctor_id, first_name, last_name, email, password, address)
+        VALUES (%s, %s, %s, %s, %s,%s)
         RETURNING doctor_id;
     """, (doctor_id, firstname, lastname, email, password, address))
 
@@ -297,7 +429,7 @@ def insert_doctor(firstname, lastname, phone_number, email, password, address):
     # Insert phone number separately (if provided)
     if phone_number:
         db.raw_query("""
-            INSERT INTO doctor_phone_numbers (doctor_id, phone_number)
+            INSERT INTO icare.doctor_phone_numbers (doctor_id, phone_number)
             VALUES (%s, %s);
         """, (doctor_id, phone_number))
 
@@ -306,21 +438,21 @@ def insert_doctor(firstname, lastname, phone_number, email, password, address):
     return doctor_id
 
     
-def insert_patient(firstname, lastname, phone_number, email, password, address, doctor_id=None, caregiver_id=None):
+def insert_patient(patient_id,firstname, lastname, phone_number, email, password, address, doctor_id=None):
     """ Insert a new patient into the patients table """
     # Generate a unique 10-digit ID for the patient
-    patient_id = str(random.randint(1000000000, 9999999999))
+     
     db.raw_query("""
-        INSERT INTO patients (patient_id,firstname, lastname, email, password, address, doctor_id, caregiver_id)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO icare.patients (patient_id,first_name, last_name, email, password, address, doctor_id)
+        VALUES (%s,%s, %s, %s, %s, %s, %s)
         RETURNING patient_id;
-    """, (patient_id,firstname, lastname, email, password, address, doctor_id, caregiver_id))
+    """, (patient_id,firstname, lastname, email, password, address, doctor_id))
 
 
     # Insert phone number separately
     if phone_number:
         db.raw_query("""
-            INSERT INTO patient_phone_numbers (patient_id, phone_number)
+            INSERT INTO icare.patient_phone_numbers (patient_id, phone_number)
             VALUES (%s, %s);
         """, (patient_id, phone_number))
 
@@ -329,13 +461,13 @@ def insert_patient(firstname, lastname, phone_number, email, password, address, 
     return patient_id
 
     
-def insert_caregiver(firstname, lastname, phone_number, email, password, address):
+def insert_caregiver(caregiver_id,firstname, lastname, phone_number, email, password, address):
     """ Insert a new caregiver into the caregivers table """
     # Generate a unique 7-digit ID
-    caregiver_id = str(random.randint(1000000, 9999999))
+    caregiver_id 
     db.raw_query("""
-        INSERT INTO caregivers (caregiver_id,firstname, lastname, email, password, address)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO icare.caregivers (caregiver_id,first_name, last_name, email, password, address)
+        VALUES (%s, %s, %s, %s, %s,%s)
         RETURNING caregiver_id;
     """, (caregiver_id, firstname, lastname, email, password, address))
 
@@ -343,7 +475,7 @@ def insert_caregiver(firstname, lastname, phone_number, email, password, address
     # Insert phone number separately
     if phone_number:
         db.raw_query("""
-            INSERT INTO caregiver_phone_numbers (caregiver_id, phone_number)
+            INSERT INTO icare.caregiver_phone_numbers (caregiver_id, phone_number)
             VALUES (%s, %s);
         """, (caregiver_id, phone_number))
 
@@ -351,28 +483,147 @@ def insert_caregiver(firstname, lastname, phone_number, email, password, address
     print(f"Caregiver {firstname} {lastname} inserted with ID: {caregiver_id}")
     return caregiver_id
 
+def insert_device(device_id, battery_percentage):
+    """Insert a new device record."""
+    try:
+        db.raw_query("""
+            INSERT INTO icare.devices (device_id, battery_percentage)
+            VALUES (%s, %s)
+            ON CONFLICT (device_id) DO UPDATE 
+            SET battery_percentage = EXCLUDED.battery_percentage;
+        """, (device_id, battery_percentage))
+        db.commit()
+    except Exception as e:
+        print(f"Error inserting device: {e}")
+        
+def insert_step_counting(step_id,device_id, time, step_count, acceleration_mag):
+    """Insert step counting data."""
+    try:
+        db.raw_query("""
+            INSERT INTO icare.step_counting (step_id,device_id, time_seconds, step_count, acceleration_mag)
+            VALUES (%s,%s,%s, %s, %s);
+        """, (step_id, device_id, time, step_count, acceleration_mag))
+        db.commit()
+    except Exception as e:
+        print(f"Error inserting step counting data: {e}")
+        
+def insert_gyroscope(gyroscope_id,device_id, time, rotation_speed, gyroscope_x, gyroscope_y, gyroscope_z):
+    """Insert gyroscope data."""
+    try:
+        db.raw_query("""
+            INSERT INTO icare.gyroscope (gyroscope_id,device_id, time_seconds, rotation_speed, gyroscope_x, gyroscope_y, gyroscope_z)
+            VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """, (gyroscope_id, device_id, time, rotation_speed, gyroscope_x, gyroscope_y, gyroscope_z))
+        db.commit()
+    except Exception as e:
+        print(f"Error inserting gyroscope data: {e}")
+        
+def insert_accelerometer(accelerometer_id,device_id, acceleration, time, accelerometer_x, accelerometer_y, accelerometer_z):
+    """Insert accelerometer data."""
+    try:
+        db.raw_query("""
+            INSERT INTO icare.accelerometer (accelerometer_id, device_id, acceleration, time_seconds, accelerometer_x, accelerometer_y, accelerometer_z)
+            VALUES (%s,%s, %s, %s, %s, %s, %s);
+        """, (accelerometer_id,device_id, acceleration, time, accelerometer_x, accelerometer_y, accelerometer_z))
+        db.commit()
+    except Exception as e:
+        print(f"Error inserting accelerometer data: {e}")
+        
+        
+def insert_fall_detection(fall_detection_id,device_id, fall_detected, time_of_fall):
+    """Insert fall detection data."""
+    try:
+        db.raw_query("""
+            INSERT INTO icare.fall_detection (fall_detection_id, device_id, fall_detected, time_of_fall)
+            VALUES (%s, %s, %s, %s);
+        """, (fall_detection_id, device_id, fall_detected, time_of_fall))
+        db.commit()
+    except Exception as e:
+        print(f"Error inserting fall detection data: {e}")
+        
+        
+def insert_heart_rate(heart_rate_id, device_id, bpm, beat_average, time, heart_rate_value):
+    """Insert heart rate data."""
+    try:
+        db.raw_query("""
+            INSERT INTO icare.heart_rate (heart_rate_id,device_id, bpm, beat_average, time_seconds, heart_rate_value)
+            VALUES (%s, %s, %s, %s, %s, %s);
+        """, (heart_rate_id,device_id, bpm, beat_average, time, heart_rate_value))
+        db.commit()
+    except Exception as e:
+        print(f"Error inserting heart rate data: {e}")
+        
+        
+def insert_spo2(spo2_id,device_id, time, spo2_percent):
+    """Insert SpO2 data."""
+    try:
+        db.raw_query("""
+            INSERT INTO icare.spo2 (spo2_id,device_id, time_seconds, spo2_percent)
+            VALUES (%s, %s, %s, %s);
+        """, (spo2_id,device_id, time, spo2_percent))
+        db.commit()
+    except Exception as e:
+        print(f"Error inserting SpO2 data: {e}")
+        
+def insert_temperature(temperature_id,device_id, temperature, time):
+    """Insert temperature data."""
+    try:
+        db.raw_query("""
+            INSERT INTO icare.temperature (temperature_id,device_id, temperature, time_seconds)
+            VALUES (%s, %s, %s, %s);
+        """, (temperature_id,device_id, temperature, time))
+        db.commit()
+    except Exception as e:
+        print(f"Error inserting temperature data: {e}")
+
+
 def reset():
-  db.raw_query("""
-  drop table  doctors, create_patients ,create_caregivers, create_patients_caregivers, create_tasks,create_task_followups,create_doctor_phone_numbers,create_patient_phone_numbers,create_caregiver_phone_numbers CASCADE
-  """)
-  db.commit()
+    db.raw_query("""
+        DROP TABLE IF EXISTS icare.doctors,
+        icare.patients,
+        icare.caregivers,
+        icare.patients_caregivers,
+        icare.patient_tasks,
+        icare.caregiver_tasks,
+        icare.task_followups,
+        icare.doctor_phone_numbers,
+        icare.patient_phone_numbers,
+        icare.caregiver_phone_numbers,
+        icare.heart_rate,
+        icare.gyroscope,
+        icare.accelerometer,
+        icare.spo2,
+        icare.step_counting,
+        icare.temperature,
+        icare.fall_detection,
+        icare.patient_device,
+        icare.devices CASCADE;
+        
+    """)
+    db.commit()
+
+
   
 def create_all_tables():
     create_doctors()
     create_patients()
     create_caregivers()
     create_patients_caregivers()
-    create_tasks()
+    create_patient_tasks()
+    create_caregiver_tasks()
     create_task_followups()
-    
     create_patient_phone_numbers()
     create_caregiver_phone_numbers()
     create_doctor_phone_numbers()
-
-
-
-
-
+    create_devices()
+    create_patient_device()
+    create_step_counting()
+    create_gyroscope()
+    create_accelerometer()
+    create_fall_detection()
+    create_heart_rate()
+    create_spo2()
+    create_temperature()
 
 
  
@@ -395,11 +646,33 @@ def main():
       db.new_connection()
 
 if __name__ == "__main__":
-  main()
-  print("Creating tables...")
-  create_all_tables()
-  print("Tables creation completed successfully! ")
- 
-  
+    main()
+    '''
+    insert_caregiver_task(
+    task_id=1,
+    description="Check blood pressure",
+    scheduled_date="2025-04-01 14:00:00",
+    status="Pending",
+    assigned_by=1234567,    # Doctor ID
+    assigned_to=1234568,  # Patient ID
+    assigned_type="patient"
+)
+'''
+
+
 
   
+    
+
+   
+
+
+
+
+
+
+
+
+
+
+

@@ -60,199 +60,213 @@ class DB:
     return (True, "Successful Sign in")
 
   #raw query
+  '''
   def raw_query(self, query):
     self.cursor.execute(query)
+    '''
+    
+  def raw_query(self, query, params=None):
+    """
+    Execute a raw SQL query with optional parameters.
+    """
+    if params:
+        self.cursor.execute(query, params)
+    else:
+        self.cursor.execute(query)
 
+# getter Functions
+  def get_patient(self, patient_id):
+    self.cursor.execute(f"select * from icare.patients where caregiver_id ='{patient_id}'")
+    
+  def get_caregiver(self, caregiver_id):
+    self.cursor.execute(f"select * from icare.caregivers where caregiver_id ='{caregiver_id}'")
+    
+  def get_doctor(self, doctor_id):
+    self.cursor.execute(f"select * from icare.doctors where doctor_id ='{doctor_id}'")
+    
 
-  #employee
-  def get_employee(self, employee_sin):
-      self.cursor.execute(f"select * from project.employees where employee_sin='{employee_sin}'")
-
-  def delete_employee(self, employee_sin):
-      self.cursor.execute(f"delete from project.employees where employee_sin='{employee_sin}'")
+# deleters
+  def delete_caregiver(self, caregiver_id):
+    self.cursor.execute(f"delete from icare.caregivers where caregiver_id ='{caregiver_id}'")
+    
+  def delete_doctor(self, doctor_id):
+    self.cursor.execute(f"delete from icare.doctors where caregiver_id ='{doctor_id}'")
   
-  def update_employee(self, employee_sin, updatepart,upvalue):
-    sql="UPDATE project.employees SET "+updatepart+" = '"+upvalue+"' where employee_sin = '"+employee_sin+"'"
+  def delete_patient(self, patient_id):
+    self.cursor.execute(f"delete from icare.patients where caregiver_id ='{patient_id}'")
+    
+
+#Updaters
+    
+  def update_caregivers(self, caregiver_id, updatepart,upvalue):
+    sql="UPDATE icare.caregivers SET "+updatepart+" = '"+upvalue+"' where caregiver_id = '"+caregiver_id+"'"
+    self.cursor.execute(sql)
+    
+  def update_doctors(self, doctor_id, updatepart,upvalue):
+    sql="UPDATE icare.doctors SET "+updatepart+" = '"+upvalue+"' where doctor_id = '"+doctor_id+"'"
     self.cursor.execute(sql)
   
-  def check_employee(self, employee_id):
-    self.cursor.execute(f"select count(employee_id) from project.employees where employee_id='{employee_id}'")
-  
-  def get_search_employees(self, employee_sin, completname,hotel_id, province,title):
-    self.cursor.execute(f"""select * from project.employees where employee_sin='{employee_sin}' or completname='{completname}' or province='{province}' or hotel_id='{hotel_id}' or title='{title}'""")
+  def update_patients(self, patient_id, updatepart,upvalue):
+    sql="UPDATE icare.patients SET "+updatepart+" = '"+upvalue+"' where patient_id = '"+patient_id+"'"
+    self.cursor.execute(sql)
+    
+# get_password
+def get_password_from_caregivers(self, caregiver_id):
+    self.cursor.execute(f"select password from icare.caregivers where caregiver_id ='{caregiver_id}'")
 
-  def get_password_from_employee(self, employee_sin):
-    self.cursor.execute(f"select password from project.employees where employee_sin='{employee_sin}'")
-  
-  def get_title(self, employee_id):
-    self.cursor.execute(f" select title from employees where employee_id='{employee_id}' ")
+def get_password_from_patients(self, patient_id):
+    self.cursor.execute(f"select password from icare.patients where patient_id ='{patient_id}'")
+ 
+def get_password_from_doctors(self, doctor_id):
+    self.cursor.execute(f"select password from icare.doctors where doctor_id ='{doctor_id}'") 
 
-  def get_manager(self, hotel_id):
-    self.cursor.execute(f" select manager from hotels where hotel_id='{hotel_id}' ")
+#  get email
+def get_email_from_caregivers(self, caregiver_id):
+    self.cursor.execute(f"select email from icare.caregivers where caregiver_id ='{caregiver_id}'")
+    
+def get_email_from_patients(self, patient_id):
+    self.cursor.execute(f"select email from icare.patients where patient_id ='{patient_id}'")
+ 
+def get_email_from_doctors(self, doctor_id):
+    self.cursor.execute(f"select email from icare.doctors where doctor_id ='{doctor_id}'") 
 
-
-  def view_employees_per_hotel(self, hotel_id):
-    self.cursor.execute(f""" select * from employees where hotel_id='{hotel_id}' """)
-
-  def assign_employee_to_property(self, employeeusername, propertyname):
-    self.cursor.execute(f""" insert into works_at (employeeusername, propertyname) values ('{employeeusername}', '{propertyname}')  """)
-
-  def get_employee_country(self, employeeusername):
-    self.cursor.execute(f""" select country from employees where username='{employeeusername}'  """)
+#  get email
+def get_phone_number_from_caregivers(self, caregiver_id):
+    self.cursor.execute(f"select phone_number from icare.caregiver_phone_numbers where caregiver_id ='{caregiver_id}'")
+    
+def get_phone_number_from_patients(self, patient_id):
+    self.cursor.execute(f"select phone_number from icare.patient_phone_numbers where patient_id ='{patient_id}'")
+ 
+def get_phone_number_from_doctors(self, doctor_id):
+    self.cursor.execute(f"select phone_number from icare.doctor_phone_numbers where doctor_id ='{doctor_id}'") 
+    
 
  
-  def insert_phone_number(self, username, phone_number):
-    self.cursor.execute(f"insert into person_phone_number (username, phone_number) VALUES ('{username}', '{phone_number}')")
-  
-  def update_phone_number(self, username, phone_number):
-    self.cursor.execute(f"UPDATE hotels_phone_number SET phone_number = '{phone_number}' WHERE hotel_id = '{username}'")
-
-
-  #users
-  def check_totalUser(self):
-    self.cursor.execute(f"select count(customer_id) from project.customers")
-  
  
-  def get_verified(self, username):
-    self.cursor.execute(f"select verified from users where username='{username}'")
+def insert_phone_number_of_caregivers(self, caregiver_id, phone_number):
+    self.cursor.execute(f"insert into icare.caregivers_phone_numbers (caregiver_id, phone_number) VALUES ('{caregiver_id}', '{phone_number}')")
+  
+def update_phone_number_of_caregivers(self, caregiver_id, phone_number):
+    self.cursor.execute(f"UPDATE icare.caregivers_phone_numbers SET phone_number = '{phone_number}' WHERE caregiver_id = '{caregiver_id}'")
 
- 
-  #Hotels
-  def get_hotel(self, hotel_id):
-      self.cursor.execute(f"select * from project.hotels where hotel_id='{hotel_id}'")
+def insert_phone_number_of_patients(self, patient_id, phone_number):
+    self.cursor.execute(f"insert into icare.patients_phone_numbers (patient_id, phone_number) VALUES ('{patient_id}', '{phone_number}')")
   
-  def get_search_All_Hotels(self):
-      self.cursor.execute(f"select * from project.hotels")
-  
-  
-  def get_hotel_id(self):     #Important
-    self.cursor.execute(f""" select hotel_id from project.hotels """)
-  
-  def delete_hotel(self, hotel_id):
-      self.cursor.execute(f"delete from project.hotels where hotel_id='{hotel_id}'")
-    
-  def update_hotel(self, hotel_id, updatepart,upvalue):
-    sql="UPDATE project.hotels SET "+updatepart+" = '"+upvalue+"' where hotel_id = '"+hotel_id+"'"
-    self.cursor.execute(sql)
-    
-  def check_total_hotels(self):
-    sql="select count(hotel_id) from project.hotels"
-    self.cursor.execute(sql)
-  
-  
-  def get_hotels_by_country(self, country):
-    self.cursor.execute(f""" select hotel_name from hotels where country='{country}' """)
+def update_phone_number_of_patients(self, patient_id, phone_number):
+    self.cursor.execute(f"UPDATE icare.patients_phone_numbers SET phone_number = '{phone_number}' WHERE patient_id = '{patient_id}'")
 
- 
-  def get_hotels_of_chain(self, chain_id):
-      self.cursor.execute(f"select * from hotels where chain_id='{chain_id}'")
-
- #Customer
-  def get_customer(self, customer_id):
-      self.cursor.execute(f"select * from project.customers where customer_id='{customer_id}'")
-
-  def delete_customer(self, customer_id):
-      self.cursor.execute(f"delete from project.customers where customer_id='{customer_id}'")
+def insert_phone_number_of_doctors(self, doctor_id, phone_number):
+    self.cursor.execute(f"insert into icare.doctors_phone_numbers (doctor_id, phone_number) VALUES ('{doctor_id}', '{phone_number}')")
   
-  def update_customer(self, customer_id, updatepart,upvalue):
-    sql="UPDATE project.customers SET "+updatepart+" = '"+upvalue+"' where customer_id = '"+customer_id+"'"
-    self.cursor.execute(sql)
-    
-  def get_search_customers(self, customer_id, completname,hotel_id, country):
-      self.cursor.execute(f"""select * from project.customers where customer_id='{customer_id}' or completname='{completname}' or country='{country}' or hotel_id='{hotel_id}'""")
-  
-  def get_password_from_customer(self, customer_id):
-    self.cursor.execute(f"select password from project.customers where customer_id='{customer_id}'")
-
-  
-  
-  
-  def valid_chain_hotel_number(self, chain_id):
-    self.cursor.execute(f"select count(hotel_name) from project.hotels where chain_id='{chain_id}'")
-
-  def create_hotel(self, hotel_name, street_number, street_name, apt_number, postal_code, rent_rate, country, province, property_type, max_guests, number_beds, number_baths, accessible, pets_allowed, current_user_id, picture):
-    self.cursor.execute(f"insert into project.hotels (hotel_name, street_number, street_name, apt_number, province, postal_code,  number_beds, accessible, pets_allowed, country, hostusername, picture) VALUES ('{property_name}', '{street_number}', '{street_name}', '{apt_number}', '{province}', '{postal_code}', '{rent_rate}', '{property_type}', '{max_guests}', '{number_beds}', '{number_baths}', '{accessible}', '{pets_allowed}', '{country}', '{current_user_id}', '{picture}')")
-
-  def get_search_hotels(self, chain_id, hotel_id, hotel_name, country, province,postal_code, ranking):
-      self.cursor.execute(f"""select * from project.hotels where chain_id='{chain_id}' or hotel_name='{hotel_name}' or country='{country}' or province='{province}' or postal_code='{postal_code}' 
-      or hotel_id='{hotel_id}' or ranking='{ranking}'""")
+def update_phone_number_of_doctorss(self, doctor_id, phone_number):
+    self.cursor.execute(f"UPDATE icare.doctors_phone_numbers SET phone_number = '{phone_number}' WHERE doctor_id = '{doctor_id}'")
 
 
+def get_caregiver_task(self, caregiver_id):
+    self.cursor.execute(f""" select task_description from icare.caregivers_tasks where caregiver_id='{caregiver_id}' """)
 
-  def get_short_term_unavailable_hotels(self, country):
-    join_date = datetime.datetime.today()
-    tomorrow = join_date + datetime.timedelta(days=1)
-    next_day = join_date + datetime.timedelta(days=1)
-    join_date = join_date.strftime('%Y-%m-%d')
-    tomorrow = tomorrow.strftime('%Y-%m-%d')
-    next_day = next_day.strftime('%Y-%m-%d')
-    self.cursor.execute(f""" select * from hotels as P where exists(select * from hotels_taken_dates as PT where PT.hotel_name=P.propertyname and
-                        (PT.taken_date='{join_date}' or PT.taken_date='{tomorrow}' or
-                        PT.taken_date='{next_day}')) and P.country='{country}'  """)
- 
-  #reservations
-  def get_reservation(self, reservation_id):
-      self.cursor.execute(f"select * from project.reservations where reservation_id='{reservation_id}'")
-  
-  def get_customer_reservation(self, customer_id):
-      self.cursor.execute(f"select * from project.reservations where customer_id='{customer_id}'")
-  
-  
-  def update_reservation(self, reservation_id, updatepart,upvalue):
-    sql="UPDATE project.reservations SET "+updatepart+" = '"+upvalue+"' where reservation_id = '"+reservation_id+"'"
-    self.cursor.execute(sql)
-    
-  def delete_reservation(self, reservation_id):
-      self.cursor.execute(f"delete from project.reservations where reservation_id='{reservation_id}'")
-      
-    
-  
-  
-  def get_total_completed_stays(self):
-    self.cursor.execute(f"select count(reservation_id) from project.reservations where reservation_status='approved'")
-  def get_room_numbers(self,hotel_id,availability):
-    self.cursor.execute(f"select room_number from project.rooms where hotel_id='{hotel_id}'and availability ='{availability}'")
-  
-  #chains
-  def get_total_countrys(self):
-    self.cursor.execute(f"select count(country) from project.chains where country=country")
 
-  def valid_country(self, country):
-    self.cursor.execute(f"select count(country) from person where country='{country}'")
-    
-  def check_totalchain(self):
-    sql="select count(chain_id) from project.chains"
-    self.cursor.execute(sql)
-    
-  #rooms
-  def get_room(self, room_number):
-      self.cursor.execute(f"select * from project.rooms where room_number='{room_number}'")
+def get_patient_task(self, patient_id):
+    self.cursor.execute(f""" select task_description from icare.patient_tasks where patient_id='{patient_id}' """)
 
-  def delete_room(self, room_number):
-      self.cursor.execute(f"delete from project.rooms where room_number='{room_number}'")
-  
-  def update_room(self, room_number, updatepart,upvalue):
-    sql="UPDATE project.rooms SET "+updatepart+" = '"+upvalue+"' where room_number = '"+room_number+"'"
-    self.cursor.execute(sql)
-    
-  def get_search_rooms(self, room_number, hotel_id):
-    self.cursor.execute(f"""select * from project.rooms where room_number='{room_number}' or hotel_id='{hotel_id}' """)
 
-  def get_search_All_Available_rooms(self):
-    self.cursor.execute(f"""select * from project.rooms where availability='Available' """)
-  
-  def get_search_Available_rooms(self, hotel_id):
-    self.cursor.execute(f"""select * from project.rooms where availability='Available' and hotel_id='{hotel_id}' """)
+def get_patient_heart_rate(self, patient_id):
+    query = """
+        SELECT timestamp, heart_rate
+        FROM icare.heart_rate
+        WHERE patient_id = %s
+        ORDER BY timestamp DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
 
-    
-    
-    
-  def check_total_rooms(self):
-    sql="select count(room_number) from project.rooms"
-    self.cursor.execute(sql)
-  
-db = DB(dbname, user, password, host, port, schema)
-db.new_connection()
+def get_patient_spo2_levels(self, patient_id):
+    query = """
+        SELECT timestamp, spo2_level
+        FROM icare.spo2
+        WHERE patient_id = %s
+        ORDER BY timestamp DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
+
+def get_patient_temperature(self, patient_id):
+    query = """
+        SELECT timestamp, temperature
+        FROM icare.temperature
+        WHERE patient_id = %s
+        ORDER BY timestamp DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
+
+def get_patient_step_count(self, patient_id):
+    query = """
+        SELECT date, step_count
+        FROM icare.step_counting
+        WHERE patient_id = %s
+        ORDER BY date DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
+
+def get_patient_fall_events(self, patient_id):
+    query = """
+        SELECT timestamp, event_details
+        FROM icare.fall_detection
+        WHERE patient_id = %s
+        ORDER BY timestamp DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
+
+def get_patient_gyroscope_data(self, patient_id):
+    query = """
+        SELECT timestamp, x_axis, y_axis, z_axis
+        FROM icare.gyroscope
+        WHERE patient_id = %s
+        ORDER BY timestamp DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
+
+def get_patient_accelerometer_data(self, patient_id):
+    query = """
+        SELECT timestamp, x_axis, y_axis, z_axis
+        FROM icare.accelerometer
+        WHERE patient_id = %s
+        ORDER BY timestamp DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
+
+def get_patient_tasks(self, patient_id):
+    query = """
+        SELECT task_description
+        FROM icare.patient_tasks
+        WHERE patient_id = %s
+        ORDER BY scheduled_date DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
+
+def update_patient_task_status(self, task_id, status):
+    query = """
+        UPDATE icare.patient_tasks
+        SET status = %s
+        WHERE task_id = %s;
+    """
+    self.cursor.execute(query, (status, task_id))
+    self.connection.commit()
+
+def update_caregiver_task_status(self, task_id, status):
+    query = """
+        UPDATE icare.caregiver_tasks
+        SET status = %s
+        WHERE task_id = %s;
+    """
+    self.cursor.execute(query, (status, task_id))
+    self.connection.commit()
 
 
 
