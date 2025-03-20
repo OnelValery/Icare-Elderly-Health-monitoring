@@ -25,12 +25,13 @@ def create_doctors():
             last_name VARCHAR(100) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
+            phone_number character varying(25) COLLATE pg_catalog."default" NOT NULL,
             address TEXT
             
         );
     """)
     db.commit()
-
+'''
 def create_doctor_phone_numbers():
     """ Create the table for storing doctor phone numbers """
     
@@ -45,7 +46,7 @@ def create_doctor_phone_numbers():
     );
      """)
     db.commit()
-
+'''
 
 
 
@@ -57,6 +58,7 @@ def create_patients():
             last_name VARCHAR(100) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
+            phone_number character varying(25) COLLATE pg_catalog."default" NOT NULL,
             address TEXT,
             doctor_id VARCHAR(7) NOT NULL,
             CONSTRAINT fk_doctor FOREIGN KEY (doctor_id)
@@ -65,7 +67,7 @@ def create_patients():
     """)
     db.commit()
 
-
+'''
     
 def create_patient_phone_numbers():
     """ Create the table for storing patient phone numbers """
@@ -81,7 +83,7 @@ def create_patient_phone_numbers():
     );
     """)
     db.commit()
-
+'''
 
 def create_caregivers():
     db.raw_query("""
@@ -91,11 +93,12 @@ def create_caregivers():
             last_name VARCHAR(100) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
+            phone_number character varying(25) COLLATE pg_catalog."default" NOT NULL,
             address TEXT
         );
     """)
     db.commit()
-
+'''
 def create_caregiver_phone_numbers():
     """ Create the table for storing caregiver phone numbers """
     db.raw_query("""
@@ -110,7 +113,7 @@ def create_caregiver_phone_numbers():
     );
     """)
     db.commit()
-
+'''
 def create_patients_caregivers():
     # Set the search path to the 'icare' schema
     db.raw_query("SET search_path TO icare;")
@@ -330,7 +333,7 @@ def create_temperature():
 
 
  
-
+'''
 def insert_caregiver_phone_number(caregiver_id, phone_number):
     """ Insert a phone number for a caregiver """
     db.raw_query("""
@@ -358,7 +361,7 @@ def insert_doctor_phone_number(doctor_id, phone_number):
     """, (doctor_id, phone_number))
     
     db.commit()
-    
+   ''' 
 
 
 def mark_patient_task_completed(task_id, is_for_patient=True):
@@ -420,18 +423,11 @@ def insert_doctor(doctor_id,firstname, lastname, phone_number, email, password, 
      # Generate a unique 7-digit ID
     doctor_id 
     db.raw_query("""
-        INSERT INTO icare.doctors (doctor_id, first_name, last_name, email, password, address)
-        VALUES (%s, %s, %s, %s, %s,%s)
+        INSERT INTO icare.doctors (doctor_id, first_name, last_name, email, password,phone_number, address)
+        VALUES (%s, %s, %s, %s, %s,%s,%s)
         RETURNING doctor_id;
-    """, (doctor_id, firstname, lastname, email, password, address))
+    """, (doctor_id, firstname, lastname, email, password,phone_number, address))
 
-
-    # Insert phone number separately (if provided)
-    if phone_number:
-        db.raw_query("""
-            INSERT INTO icare.doctor_phone_numbers (doctor_id, phone_number)
-            VALUES (%s, %s);
-        """, (doctor_id, phone_number))
 
     db.commit()
     print(f"Doctor {firstname} {lastname} inserted with ID: {doctor_id}")
@@ -443,18 +439,11 @@ def insert_patient(patient_id,firstname, lastname, phone_number, email, password
     # Generate a unique 10-digit ID for the patient
      
     db.raw_query("""
-        INSERT INTO icare.patients (patient_id,first_name, last_name, email, password, address, doctor_id)
-        VALUES (%s,%s, %s, %s, %s, %s, %s)
+        INSERT INTO icare.patients (patient_id,first_name, last_name, email, password,phone_number, address, doctor_id)
+        VALUES (%s,%s, %s, %s, %s, %s, %s,%s)
         RETURNING patient_id;
-    """, (patient_id,firstname, lastname, email, password, address, doctor_id))
+    """, (patient_id,firstname, lastname, email, password, address,phone_number, doctor_id))
 
-
-    # Insert phone number separately
-    if phone_number:
-        db.raw_query("""
-            INSERT INTO icare.patient_phone_numbers (patient_id, phone_number)
-            VALUES (%s, %s);
-        """, (patient_id, phone_number))
 
     db.commit()
     print(f"Patient {firstname} {lastname} inserted with ID: {patient_id}")
@@ -466,18 +455,12 @@ def insert_caregiver(caregiver_id,firstname, lastname, phone_number, email, pass
     # Generate a unique 7-digit ID
     caregiver_id 
     db.raw_query("""
-        INSERT INTO icare.caregivers (caregiver_id,first_name, last_name, email, password, address)
-        VALUES (%s, %s, %s, %s, %s,%s)
+        INSERT INTO icare.caregivers (caregiver_id,first_name, last_name, email, password,phone_number, address)
+        VALUES (%s, %s, %s, %s, %s,%s,%s)
         RETURNING caregiver_id;
-    """, (caregiver_id, firstname, lastname, email, password, address))
+    """, (caregiver_id, firstname, lastname, email, password,phone_number, address))
 
 
-    # Insert phone number separately
-    if phone_number:
-        db.raw_query("""
-            INSERT INTO icare.caregiver_phone_numbers (caregiver_id, phone_number)
-            VALUES (%s, %s);
-        """, (caregiver_id, phone_number))
 
     db.commit()
     print(f"Caregiver {firstname} {lastname} inserted with ID: {caregiver_id}")
@@ -586,9 +569,6 @@ def reset():
         icare.patient_tasks,
         icare.caregiver_tasks,
         icare.task_followups,
-        icare.doctor_phone_numbers,
-        icare.patient_phone_numbers,
-        icare.caregiver_phone_numbers,
         icare.heart_rate,
         icare.gyroscope,
         icare.accelerometer,
@@ -612,9 +592,6 @@ def create_all_tables():
     create_patient_tasks()
     create_caregiver_tasks()
     create_task_followups()
-    create_patient_phone_numbers()
-    create_caregiver_phone_numbers()
-    create_doctor_phone_numbers()
     create_devices()
     create_patient_device()
     create_step_counting()

@@ -30,24 +30,49 @@
             </div>
         </div>
     </header>  
-    <section class="form-content">
+    <section class="register-form-content">
         <div class="container">
-            <h2>Login to Your Account</h2>
-            <form id="loginForm">
-                <label for="username">Email:</label>
-                <input type="text" id="email" required>
+            <h2>Create an Account</h2>
+            <form id="registerForm" method="POST">
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <option value="doctor">Doctor</option>
+                    <option value="caregiver">Caregiver</option>
+                    <option value="patient">Patient</option>
+                </select>
+                
+                <label for="firstname">Firstname:</label>
+                <input type="text" id="firstname" name="firstname" required>
+    
+                <label for="lastname">Lastname:</label>
+                <input type="text" id="lastname" name="lastname" required>
+    
+                <label for="phone_number">Phone Number:</label>
+                <input type="text" id="phone_number" name="phone_number" required>
+    
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
                 
                 <label for="password">Password:</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" name="password" required>
+    
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" required>
                 
-                <button type="submit">Login</button>
+                <button type="submit">Register</button>
             </form>
-            <p>Don't have an account? <a href="register.html">Register here</a></p>
+            <div class="two-col">
+                <div class="one">
+                    <input type="checkbox" id="register-check">
+                    <label for="register-check"> Remember Me</label>
+                </div>
+                <div class="two">
+                    <label><a href="#">Terms & conditions</a></label>
+                </div>
+            </div>
+            <p>Already have an account? <a href="login.html">Login here</a></p>
         </div>
     </section>
-    
-    <script src="static/script.js"></script>
-
     <footer>
         <div class="container grid">
           <div class="box">
@@ -92,9 +117,6 @@
         <p class="container">Copyright (c) 2022 Copyright Holder All Rights Reserved.</p>
     </div>
     
-    
-    
-    <script src="https://kit.fontawesome.com/032d11eac3.js" crossorigin="anonymous"></script>
-   
+  
 </body>
 </html>
