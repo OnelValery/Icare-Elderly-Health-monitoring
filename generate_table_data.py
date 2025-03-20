@@ -60,7 +60,8 @@ def create_patients():
             password VARCHAR(255) NOT NULL,
             phone_number character varying(25) COLLATE pg_catalog."default" NOT NULL,
             address TEXT,
-            doctor_id VARCHAR(7) NOT NULL,
+            doctor_id VARCHAR(7),
+            caregiver_id VARCHAR(25),
             CONSTRAINT fk_doctor FOREIGN KEY (doctor_id)
                 REFERENCES icare.doctors(doctor_id) ON UPDATE CASCADE ON DELETE CASCADE
         );
@@ -113,7 +114,7 @@ def create_caregiver_phone_numbers():
     );
     """)
     db.commit()
-'''
+
 def create_patients_caregivers():
     # Set the search path to the 'icare' schema
     db.raw_query("SET search_path TO icare;")
@@ -132,7 +133,7 @@ def create_patients_caregivers():
         );
     """)
     db.commit()
-
+'''
 def create_patient_tasks():
     db.raw_query("""
     CREATE TABLE IF NOT EXISTS icare.patient_tasks (
@@ -407,7 +408,7 @@ def insert_caregiver_task(task_id, description, scheduled_date, status, assigned
     """, (task_id, description, scheduled_date, status, assigned_by, assigned_to,assigned_for,patient_id))
     
     db.commit()
-    
+'''
 def assign_caregiver_to_patient(patient_id, caregiver_id):
     """ Assign a caregiver to a patient """
     db.raw_query("""
@@ -417,7 +418,7 @@ def assign_caregiver_to_patient(patient_id, caregiver_id):
     """, (caregiver_id, patient_id))
     
     db.commit()
-    
+'''
 def insert_doctor(doctor_id,firstname, lastname, phone_number, email, password, address):
     """ Insert a new doctor into the doctors table """
      # Generate a unique 7-digit ID
@@ -565,7 +566,6 @@ def reset():
         DROP TABLE IF EXISTS icare.doctors,
         icare.patients,
         icare.caregivers,
-        icare.patients_caregivers,
         icare.patient_tasks,
         icare.caregiver_tasks,
         icare.task_followups,
@@ -588,7 +588,6 @@ def create_all_tables():
     create_doctors()
     create_patients()
     create_caregivers()
-    create_patients_caregivers()
     create_patient_tasks()
     create_caregiver_tasks()
     create_task_followups()

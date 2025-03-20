@@ -1,4 +1,212 @@
-<p><strong>Email:</strong> {{ patient_data_dict['email'] }}</p>
-<p><strong>Phone:</strong> {{ patient_data_dict['phone_number'] }}</p>
-<p><strong>The Patient Doctor:</strong> {{ patient_data_dict['patient_name'] }}</p>
-<p><strong>Assignd Caregiver:</strong> {{ patient_data_dict['patient_name'] }}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icare Health Monitoring | Login & Register</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <header>
+        <div class="content flex_space">
+            <div class="logo">
+                <img src="images/icare_logo.png" height="80" alt="Icare Logo">
+            </div>
+            <div class="navlinks">
+              <ul id="menulist">
+                  <li><a href="dashboard.html" class="link active">Dashboard</a></li>
+                  <li><a href="#">Reports</a></li>
+                  <li><a href="#">Monitoring</a></li>
+                  <li><a href="#">Contact</a></li>
+      
+                  <li><button class="btn white-btn" id="registerBtn" onclick="logou()">LOGOUT</button></li>
+            </ul>
+            </div>
+        </div>
+    </header>  
+    
+    <main class="container">
+        <h1>Welcome, Dr. {{ doctor_data_dict['first_name'] }} {{ doctor_data_dict['last_name'] }}</h1>
+        <div class="doctor-info">
+            <h2>Doctor Information</h2>
+            <p><strong>Name:</strong> Dr. {{ doctor_data_dict['first_name'] }} {{ doctor_data_dict['last_name'] }}</p>
+            <p><strong>Specialty:Urologue</strong> </p>
+            <p><strong>Email:</strong> {{ doctor_data_dict['email'] }}</p>
+            <p><strong>Phone:</strong> {{ doctor_data_dict['phone_number'] }}</p>
+            <p><strong>Adress:</strong> {{ doctor_data_dict['address'] }}</p>
+        </div>
+        <section class="patient-list">
+            <h2>Patient List</h2>
+
+            <form method="POST">
+                <input type="text" name="patient_id" id="newPatientID" placeholder="Patient ID" required>
+                <button type="submit">+ Add Patient</button>
+            </form>
+
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Surname</th>
+                        <th>Firstname</th>
+                        <th>Patient ID</th>
+                        <th>Caregiver ID</th>
+                        <th>Patient #</th>
+                        <th>Caregiver Task</th>
+                        <th>Patient Task</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="patientTable"></tbody>
+            </table>
+            
+        </section>
+    </main>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let patients = [
+                { id: "P001", surname: "Dupont", firstname: "Alice", caregiver: "C001", patientNumber: "123456789", caregiverTasks: ["Task A", "Task B"], patientTasks: ["Task 1", "Task 2"] },
+                { id: "P002", surname: "Martin", firstname: "Bob", caregiver: "C002", patientNumber: "987654321", caregiverTasks: ["Task X", "Task Y"], patientTasks: ["Task 3", "Task 4"] }
+            ];
+            
+            function updatePatientTable() {
+                let table = document.getElementById("patientTable");
+                table.innerHTML = "";
+                patients.forEach((patient, index) => {
+                    let row = table.insertRow();
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${patient.surname}</td>
+                        <td>${patient.firstname}</td>
+                        <td>${patient.id} (Clickable)</td>
+                        <td>${patient.caregiver}</td>
+                        <td>${patient.patientNumber}</td>
+                        <td>
+                            <button onclick="toggleTaskList('${patient.id}', 'caregiver')">See Caregiver Task</button>
+                            <ul id="caregiverTaskList-${patient.id}" style="display:none; list-style-type:none; padding:0;">
+                                ${patient.caregiverTasks.map(task => `<li>${task} <button onclick="removeTask('${patient.id}', '${task}', 'caregiver')">-</button></li>`).join('')}
+                            </ul>
+                            <input type="text" id="newCaregiverTask-${patient.id}" placeholder="New Task">
+                            <button onclick="addTask('${patient.id}', 'caregiver')">+</button>
+                        </td>
+                        <td>
+                            <button onclick="toggleTaskList('${patient.id}', 'patient')">See Patient Task</button>
+                            <ul id="patientTaskList-${patient.id}" style="display:none; list-style-type:none; padding:0;">
+                                ${patient.patientTasks.map(task => `<li>${task} <button onclick="removeTask('${patient.id}', '${task}', 'patient')">-</button></li>`).join('')}
+                            </ul>
+                            <input type="text" id="newPatientTask-${patient.id}" placeholder="New Task">
+                            <button onclick="addTask('${patient.id}', 'patient')">+</button>
+                        </td>
+                        <td>
+                            <button onclick="removePatient('${patient.id}')">Remove</button>
+                        </td>`;
+                });
+            }
+            
+            window.toggleTaskList = function(patientId, type) {
+                let taskList = document.getElementById(`${type}TaskList-${patientId}`);
+                taskList.style.display = taskList.style.display === "none" ? "block" : "none";
+            };
+            
+            window.addTask = function(patientId, type) {
+                let taskInput = document.getElementById(`new${type.charAt(0).toUpperCase() + type.slice(1)}Task-${patientId}`);
+                let taskValue = taskInput.value;
+                if (taskValue) {
+                    let patient = patients.find(p => p.id === patientId);
+                    patient[`${type}Tasks`].push(taskValue);
+                    updatePatientTable();
+                    taskInput.value = "";
+                }
+            };
+            
+            window.removeTask = function(patientId, task, type) {
+                let patient = patients.find(p => p.id === patientId);
+                patient[`${type}Tasks`] = patient[`${type}Tasks`].filter(t => t !== task);
+                updatePatientTable();
+            };
+
+            
+            // Add new patient
+            window.addPatient = function() {
+                
+                let patientId = document.getElementById("newPatientID").value;
+
+                if (patientId) {
+                    patients.push({
+                        id: patientId,
+                        surname: surname,
+                        firstname: firstname,
+                        caregiver: caregiverId,
+                        patientNumber: patientNumber,
+                        caregiverTasks: [],
+                        patientTasks: []
+                    });
+                    updatePatientTable();
+                } else {
+                    alert("Please fill in all fields");
+                }
+            };
+
+             // Remove patient
+             window.removePatient = function(patientId) {
+                patients = patients.filter(patient => patient.id !== patientId);
+                updatePatientTable();
+            };
+
+    
+            
+            updatePatientTable();
+        });
+    </script>
+<footer>
+    <div class="container grid">
+      <div class="box">
+        <img src="images/logo2.jpeg" alt="">
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+          aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+        <div class="icon">
+          <i class="fa fa-facebook-f"></i>
+          <i class="fa fa-instagram"></i>
+          <i class="fa fa-twitter"></i>
+          <i class="fa fa-youtube"></i>
+        </div>
+    </div>
+
+    <div class="box">
+        <h2>Links</h2>
+        <ul>
+          <li>Company History</li>
+          <li>About Us</li>
+          <li>Contact Us</li>
+          <li>Services</li>
+          <li>Privacy Policy</li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>Contact Us</h2>
+        <p>Lorem ipsum dolor sit amet constur adipisicing elit sed do eiusmtem por incid.
+        </p>
+        <i class="fa fa-location-dot"></i>
+        <label>149, Unknown street, Ottawa,ON Canada. </label> <br>
+        <i class="fa fa-phone"></i>
+        <label>+1 (819) 930 9172</label> <br>
+        <i class="fa fa-envelope"></i>
+        <label>info@csi2132.ca</label> <br>
+      </div>
+    </div>
+</footer>
+
+<div class="legal">
+    <p class="container">Copyright (c) 2022 Copyright Holder All Rights Reserved.</p>
+</div>
+
+
+
+
+    
+</body>
+</html>

@@ -102,13 +102,13 @@ class DB:
   
 # register patient
   def register_patient(self,patient_id, firstname, lastname, phone_number, email, password,adress):
-        doctor_id='0000000'
+        doctor_id=None
         try:
             # Assuming user table is in the schema 
             self.cursor.execute("""
-                INSERT INTO icare.patients (patient_id,first_name,last_name, email, password,phone_number,address,doctor_id) 
-                VALUES (%s, %s, %s,%s,%s,%s,%s,%s)
-            """, (patient_id, firstname, lastname, email, password,phone_number,adress,doctor_id))
+                INSERT INTO icare.patients (patient_id,first_name,last_name, email, password,phone_number,address,doctor_id,caregiver_id) 
+                VALUES (%s, %s, %s,%s,%s,%s,%s,%s,%s)
+            """, (patient_id, firstname, lastname, email, password,phone_number,adress,None,None))
             self.commit()
             return True
         except Exception as e:
@@ -147,8 +147,57 @@ class DB:
         self.cursor.execute(query)
 
 # getter Functions
-  def get_patient(self, patient_id):
-    self.cursor.execute(f"select * from icare.patients where patient_id ='{patient_id}'")
+  def get_patient_by_id(self, patient_id):
+    try:
+        # Use parameterized query to avoid SQL injection
+        self.cursor.execute("SELECT * FROM icare.patients WHERE patient_id = %s", (patient_id,))
+        
+        # Fetch the result (this will return a single row if the patient exists)
+        patient = self.cursor.fetchone()
+        
+        # Return the patient data (None if no patient is found)
+        return patient
+    
+    except Exception as e:
+        # Log the error or raise it
+        print(f"Error fetching patient by ID: {e}")
+        return None
+      
+    
+  def remove_doctor_for_patient(self, doctor_id, patient_id):
+    try:
+        # First, check if the patient exists and fetch the current doctor_id
+        self.cursor.execute("SELECT doctor_id FROM icare.patients WHERE patient_id = %s", (patient_id,))
+        
+        # Fetch the result (this will return a single row if the patient exists)
+        patient = self.cursor.fetchone()
+
+        if patient:  # Patient exists
+            current_doctor_id = patient[0]
+            
+            # Check if the patient is assigned to the doctor we're trying to remove
+            if current_doctor_id == doctor_id:
+                # Update the doctor_id to 'XXXXXXX' for the patient
+                self.cursor.execute("UPDATE icare.patients SET doctor_id = %s WHERE patient_id = %s", (None,patient_id))
+                
+                # Commit the change to the database
+                self.connection.commit()  # Assuming `self.connection` is the DB connection object
+
+                return True  # Return True to indicate the update was successful
+            else:
+                # If the current doctor_id doesn't match the doctor we're removing, return False
+                return False  # The patient is not assigned to the provided doctor_id
+        else:
+            # If the patient doesn't exist, return False
+            return False  # Patient does not exist
+    
+    except Exception as e:
+        # Log the error or raise it
+        print(f"Error removing doctor for patient: {e}")
+        return None
+
+
+
     
   def get_caregiver(self, caregiver_id):
     self.cursor.execute(f"select * from icare.caregivers where caregiver_id ='{caregiver_id}'")
@@ -212,10 +261,6 @@ class DB:
   def get_phone_number_from_doctors(self, doctor_id):
     self.cursor.execute(f"select phone_number from icare.doctors where doctor_id ='{doctor_id}'") 
     
-  def get_doctor_name(self, doctor_id):
-    # Use parameterized query to avoid SQL injection
-    self.cursor.execute("SELECT first_name FROM icare.doctors WHERE doctor_id = %s", (doctor_id,))
-    
     # Fetch the result (if exists)
     doctor_name = self.cursor.fetchone()
     
@@ -225,6 +270,63 @@ class DB:
     else:
         return None  # Or handle it as appropriate for your case
 
+  def get_doctor_name(self, doctor_id):
+    # Use parameterized query to avoid SQL injection
+    self.cursor.execute("SELECT first_name FROM icare.doctors WHERE doctor_id = %s", (doctor_id,))
+    
+  def get_the_doctor_patients(self, doctor_id):
+    try:
+        # Use parameterized query to avoid SQL injection
+        self.cursor.execute("SELECT * FROM icare.patients WHERE doctor_id = %s", (doctor_id,))
+        
+        # Fetch all the rows for the given doctor_id
+        patients = self.cursor.fetchall()
+        
+        # Return the result, or you can process it further if needed
+        return patients # This will return a list of tuples, where each tuple is a patient's data
+    
+    except Exception as e:
+        # Log the error or raise it
+        print(f"Error fetching doctor patients: {e}")
+        return None
+  
+  def doctor_Add_patient(self, doctor_id, patient_id):
+    try:
+        # Use parameterized query to check if the patient exists
+        self.cursor.execute("SELECT patient_id FROM icare.patients WHERE patient_id = %s", (patient_id,))
+        
+        # Fetch the result (this will return a list of tuples)
+        result = self.cursor.fetchall()
+
+        if result:  # Patient exists
+            # Check if doctor_id is valid
+            if doctor_id is None:
+                print("Error: Invalid doctor_id")
+                return False
+
+            # Use parameterized query to associate the doctor with the patient
+            self.cursor.execute("UPDATE icare.patients SET doctor_id = %s WHERE patient_id = %s AND doctor_id IS NULL", (doctor_id, patient_id))
+            
+            # Commit the change to the database
+            self.connection.commit()
+            
+            # Verify the update
+            self.cursor.execute("SELECT doctor_id FROM icare.patients WHERE patient_id = %s", (patient_id,))
+            updated_doctor_id = self.cursor.fetchone()
+            
+            if updated_doctor_id and updated_doctor_id[0] == doctor_id:
+                return True  # Successfully updated doctor_id
+            else:
+                print("Error: Failed to update doctor_id.")
+                return False
+        else:
+            return False  # Patient does not exist
+
+    except Exception as e:
+        print(f"Error adding patient to doctor: {e}")
+        return None
+
+ 
     
   def get_doctor_data(self, doctor_id):
     # Use parameterized query to avoid SQL injection
