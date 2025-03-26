@@ -406,10 +406,60 @@ class DB:
         return caregiver_id[0]  # Return the caregiver_id from the result
     else:
         return None  # Or handle it as appropriate for your case
+      
+  def get_caregiver_tasks(self, caregiver_id, patient_id):
+    query = """
+        SELECT task_description,status
+        FROM icare.caregiver_tasks
+        WHERE caregiver_id = %s AND patient_id = %s
+        ORDER BY scheduled_date DESC;
+    """
+    self.cursor.execute(query, (caregiver_id,patient_id,))
+    return self.cursor.fetchall()
+  
+
+      
+  def add_caregiver_task(self, task_description, scheduled_date, assigned_by, caregiver_id, patient_id):
+    try:
+        # Insert a new caregiver task into the icare.caregiver_tasks table
+        self.cursor.execute("""
+            INSERT INTO icare.caregiver_tasks (task_description, scheduled_date, status, assigned_by, caregiver_id, patient_id)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (task_description, scheduled_date, 'Pending', assigned_by, caregiver_id, patient_id))
+
+        # Commit the transaction to save the changes
+        self.connection.commit()
+
+        # Return True to indicate that the task was successfully added
+        return True
+    except Exception as e:
+        # Log any exceptions or errors that occurred
+        print(f"Error adding caregiver task: {e}")
+        return False
+      
+      
+  def add_patient_task(self, task_description, scheduled_date, assigned_by, patient_id):
+    try:
+        # Insert a new caregiver task into the icare.caregiver_tasks table
+        self.cursor.execute("""
+            INSERT INTO icare.patient_tasks (task_description, scheduled_date, status, assigned_by, assigned_for)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (task_description, scheduled_date, 'Pending', assigned_by,  patient_id))
+
+        # Commit the transaction to save the changes
+        self.connection.commit()
+
+        # Return True to indicate that the task was successfully added
+        return True
+    except Exception as e:
+        # Log any exceptions or errors that occurred
+        print(f"Error adding caregiver task: {e}")
+        return False
+
 
 
  
- 
+
   def insert_phone_number_of_caregivers(self, caregiver_id, phone_number):
     self.cursor.execute(f"insert into icare.caregivers_phone_numbers (caregiver_id, phone_number) VALUES ('{caregiver_id}', '{phone_number}')")
   
@@ -429,14 +479,7 @@ class DB:
     self.cursor.execute(f"UPDATE icare.doctors_phone_numbers SET phone_number = '{phone_number}' WHERE doctor_id = '{doctor_id}'")
 
 
-  def get_caregiver_task(self, caregiver_id):
-    self.cursor.execute(f""" select task_description from icare.caregivers_tasks where caregiver_id='{caregiver_id}' """)
-
-
-  def get_patient_task(self, patient_id):
-    self.cursor.execute(f""" select task_description from icare.patient_tasks where patient_id='{patient_id}' """)
-
-
+  
   def get_patient_heart_rate(self, patient_id):
     query = """
         SELECT timestamp, heart_rate
@@ -509,9 +552,9 @@ class DB:
 
   def get_patient_tasks(self, patient_id):
     query = """
-        SELECT task_description
+        SELECT task_description,status
         FROM icare.patient_tasks
-        WHERE patient_id = %s
+        WHERE assigned_for = %s
         ORDER BY scheduled_date DESC;
     """
     self.cursor.execute(query, (patient_id,))

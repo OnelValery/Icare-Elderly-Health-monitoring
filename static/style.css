@@ -11,6 +11,7 @@
 
 body {
     font-family: 'Poppins', sans-serif;
+    margin-top: 100px;
     
 
 }
@@ -46,18 +47,21 @@ h1, h2 {
     outline: none;
     transition: 0.5s;
     cursor: pointer;
+
+
   
   }
 
   .primary-btn {
-    padding: 15px 40px;
+    padding: 5px 20px;
     background: #7fc142;
     font-weight: bold;
     color: white;
+    
   }
   
   .secondary-btn {
-    padding: 15px 40px;
+    padding: 10px 20px;
     background: none;
     border: 2px solid white;
     font-weight: bold;
@@ -67,15 +71,22 @@ h1, h2 {
   .container {
     max-width: 85%;
     margin: auto;
+    margin-top: 50px;
   }
 
 /* Header Section */
 header {
-    height: 10vh;
-    line-height: 10vh;
-    padding: 0 20px;
-    margin-bottom: auto;
+    position: fixed;
+    top: 0; /* Fixe le header en haut de la page */
+    left: 0; /* Assure que le header commence à gauche */
+    width: 100%; /* Le header prend toute la largeur */
+    z-index: 1000; /* Assure que le header soit au-dessus du reste du contenu */
+    background-color: #fff; /* Assurez-vous que le fond est visible */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optionnel : ajouter une ombre pour améliorer l'apparence */
+    padding: 10px 0; /* Ajustez le padding selon vos besoins */
+    
 }
+
 
 header img {
     margin: 20px 0;
@@ -217,14 +228,14 @@ footer {
     background: linear-gradient(to bottom, #2c3e50, #34495e);
     color: #ecf0f1;
     padding: 40px 0;
-    margin-top: auto;
+    margin-top: 50px;
 }
 
 footer .container {
     display: flex;
     justify-content: space-between;
     gap: 40px;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -493,4 +504,140 @@ p a {
 
 p a:hover {
     text-decoration: underline;
+}
+
+/*-----------------------------------Modal---------------------------------------*/
+/* Base styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Container spacing */
+.container {
+    margin-top: 30px;
+}
+
+h1, h2 {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Doctor Info Section */
+.doctor-info {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.doctor-info p {
+    margin: 5px 0;
+}
+
+.doctor-info strong {
+    color: #007bff;
+}
+
+/* Table Styling */
+table {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+table th, table td {
+    font-size: 0.95rem;
+    text-align: center;
+    padding: 12px;
+}
+
+.table-bordered {
+    border: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.table td {
+    background-color: #f9f9f9;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary, .btn-danger {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary:hover {
+    background-color: #6c757d;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* Form Inputs */
+.form-control-sm {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+}
+
+/* Modal Styles */
+.modal-content {
+    border-radius: 8px;
+}
+
+.modal-header {
+    background-color: #007bff;
+    color: #fff;
+    border-bottom: none;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    border-top: none;
+    justify-content: center;
+}
+
+/* Task Lists */
+#taskList {
+    list-style: none;
+    padding: 0;
+}
+
+#taskList li {
+    background-color: #f1f1f1;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+}
+
+#taskList li:nth-child(odd) {
+    background-color: #e9ecef;
+}
+
+/* Create New Task Form */
+.form-group label {
+    font-size: 0.9
 }
