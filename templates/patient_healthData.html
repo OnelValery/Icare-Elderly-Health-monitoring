@@ -9,16 +9,13 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap");
-       {
-     
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-    
-    /*font-family: 'Poppins', sans-serif; /* Default font */
-        }
 
-        body {
+/* ✅ Réinitialisation globale */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}        body {
             font-family: 'Poppins', sans-serif;
     
 
@@ -80,54 +77,67 @@
 
         /* Header Section */
         header {
-            height: 10vh;
-            line-height: 10vh;
-            padding: 0 20px;
-            margin-bottom: auto;
-        }
+  background: linear-gradient(to right, #2980b9, #6dd5fa);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: slideDown 0.5s ease-in-out;
+}
 
-        header img {
-            margin: 20px 0;
-        }
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 
-        header ul {
-            display: inline-block;
-        }
+header .logo img {
+  height: 60px;
+}
 
-        header ul li {
-            display: inline-block;
-            text-transform: uppercase;
-        }
+header .navlinks ul {
+  display: flex;
+  gap: 25px;
+}
 
-        header ul li a {
-            color: #000;
-            margin: 0 10px;
-            transition: 0.5s;
-        }
+header .navlinks ul li a {
+  font-weight: 500;
+  color: #ffffff;
+  padding: 8px 12px;
+  transition: background 0.3s, color 0.3s;
+}
 
-        header ul li a:hover {
-            color: #7fc142;
-        }
+header .navlinks ul li a:hover {
+  background-color: #ffffff;
+  color: #2980b9;
+  border-radius: 5px;
+}
 
-        header i {
-            margin: 0 20px;
-        }
+/* Responsive Navigation */
+@media only screen and (max-width: 768px) {
+  header .navlinks ul {
+    flex-direction: column;
+    background-color: #2980b9;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    display: none;
+  }
 
-        header button {
-            padding: 13px 40px;
-        }
-
-        header .navlinks span {
-            display: none;
-        }
-
-        header .navlinks ul li .link {
-            text-decoration: none;
-            font-weight: 500;
-            color: #000;
-            padding-bottom: 15px;
-            margin: 0 25px;
-        }
+  header .navlinks span {
+    display: block;
+    font-size: 22px;
+    cursor: pointer;
+  }
+}
 
         .link:hover, .active {
             border-bottom: 2px solid #fff;
@@ -234,77 +244,65 @@
 
         
     /* Footer Section */
-        footer {
-            background: linear-gradient(to bottom, #2c3e50, #34495e);
-        color: #ecf0f1;
-        padding: 40px 0;
-        margin-top: auto;
-        }
+    footer {
+        background: linear-gradient(to right, #2980b9, #6dd5fa);
+    color: #ecf0f1;
+    padding: 20px 0; /* Réduction du padding */
+    margin-top: 30px;
+    font-size: 14px; /* Réduction de la taille du texte */
+}
 
-    footer .container {
-        display: flex;
-        justify-content: space-between;
-        gap: 40px;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
 
-    footer .box {
-        width: 30%;
-    }
+footer .container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-    footer .box h2 {
-        margin-bottom: 20px;
-        font-size: 22px;
-    }
+footer .box {
+    width: 30%;
+    padding: 0 10px;  /* Réduction des espaces internes */
+}
 
-    footer .box ul {
-        list-style-type: none;
-    }
 
-    footer .box ul li {
-        margin-bottom: 10px;
-        font-size: 16px;
-    }
+footer .box h2 {
+    font-size: 18px; /* Réduction de la taille */
+    margin-bottom: 15px;
+}
 
-    footer .box .icon {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-    }
+footer .box ul {
+  padding-left: 0;
+}
 
-    footer .box .icon i {
-        color: #ecf0f1;
-        font-size: 20px;
-        transition: 0.3s;
-    }
+footer .box ul li {
+  margin-bottom: 10px;
+  color: #ecf0f1;
+  transition: color 0.3s;
+}
 
-    footer .box .icon i:hover {
-        color: #3498db;
-    }
+footer .box ul li:hover {
+  color: #dff9fb;
+}
 
-    footer .box p {
-        margin-bottom: 15px;
-    }
+footer .box .icon i {
+  font-size: 20px;
+  margin-right: 15px;
+  color: #ffffff;
+  transition: color 0.3s;
+}
 
-    footer .box i {
-        margin-right: 10px;
-    }
+footer .box .icon i:hover {
+  color: #f1c40f;
+}
 
-    footer .box label {
-        display: block;
-    }
-
-    /* Legal Section */
-    .legal {
-        background-color: #34495e;
-        color: #ecf0f1;
-        text-align: center;
-        padding: 10px;
-        margin-top: 50px;
-        font-size: 14px;
-    }
-    </style>
+footer .box label, footer .box p {
+  color: #ecf0f1;
+  margin-bottom: 10px;
+}
+</style>
 </head>
 <body>
 
@@ -316,7 +314,7 @@
         <h2>Icare Health Monitoring</h2>
         <div class="navlinks">
             <ul id="menulist">
-                <li><a href="dashboard.html" class="link active">Home</a></li>
+                <li><a href="index.html" class="link active">Home</a></li>
                 <li><a href="#">Reports</a></li>
                 <li><a href="#">Monitoring</a></li>
                 <li><a href="#">Contact</a></li>

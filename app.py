@@ -8,7 +8,9 @@ import pandas as pd
 import numpy as np
 import pyarrow as pa #to add Requirement
 import os
+import math
 from datetime import datetime
+
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
@@ -30,19 +32,19 @@ def register():
 
         # Add user to the database
         if role=='doctor':
-            doctor_id='0000000'
+            doctor_id = str(random.randint(1000000, 9999999))
             if db.register_doctor(doctor_id,firstname, lastname, phone_number, email, password, address):
                 return redirect(url_for('login'))  # Redirect to login page after successful registration
             else:
                 return "Error occurred while registering. Please try again."
         elif role=='patient':
-            patient_id='0000000000'
+            patient_id=str(random.randint(1000000000, 9999999999))
             if db.register_patient(patient_id,firstname, lastname, phone_number, email, password, address):
                 return redirect(url_for('login'))  # Redirect to login page after successful registration
             else:
                 return "Error occurred while registering. Please try again."
         elif role=='caregiver':
-            caregiver_id='0000000'
+            caregiver_id=str(random.randint(1000000, 9999999))
             if db.register_caregiver(caregiver_id,firstname, lastname, phone_number, email, password, address):
                 return redirect(url_for('login'))  # Redirect to login page after successful registration
             else:
@@ -233,7 +235,7 @@ def create_patient_task():
         return jsonify({'status': 'success'})
     else:
         return jsonify({'status': 'error', 'message': 'Failed to create task'}), 400
-
+ 
 
 
 
@@ -257,27 +259,125 @@ def get_patient_tasks(patient_id):
         print(f"Error fetching patient tasks: {e}")
         return jsonify({'tasks': []}), 500
 
-@app.route('/patient',methods=['GET', 'POST'])
+@app.route('/patient', methods=['GET', 'POST'])
 def patient():
     if 'role' not in session or session['role'] != 'patient':
         return redirect(url_for('login'))  # Redirect to login if not logged in
-    # Fetch doctor-specific data here, like doctor_id
+    
+    # Fetch patient-specific data here
     email = session.get('email')
     patient_id = db.get_patient_id_by_email(email)
     patient_data = db.get_patient_data(patient_id)
+    caregiver_id = patient_data[8]
     
-    patient_data_dict={
-        'id':patient_data[0],
-        'first_name':patient_data[1],
-        'last_name':patient_data[2],
-        'email':patient_data[3],
-        'address':patient_data[6],
-        'phone_number':patient_data[5]
+    # Construct the patient data dictionary
+    patient_data_dict = {
+        'patient_id': patient_data[0],
+        'first_name': patient_data[1],
+        'last_name': patient_data[2],
+        'email': patient_data[3],
+        'address': patient_data[6],
+        'phone_number': patient_data[5]
+    }
+    
+    # Fetch patient tasks
+    patient_tasks = []
+    tasks_data = db.get_patient_tasks_Info(patient_id)
+    if tasks_data is None:
+        flash("Error fetching patient tasks. Please try again later.", "error")
+    else:
+        for data_task in tasks_data:
+            new_task = {
+                'patient_task_id': data_task[0],
+                'task_description': data_task[1],
+                'scheduled_date': data_task[2],
+                'doctor_id': data_task[4],
+                'status': data_task[3]
+            }
+            patient_tasks.append(new_task)
+    
+    # Fetch caregiver tasks
+    caregiver_tasks = []
+    caregiver_tasks_data = db.get_caregiver_tasks_Info(caregiver_id, patient_id)
+    if caregiver_tasks_data is None:
+        flash("Error fetching caregiver tasks. Please try again later.", "error")
+    else:
+        for caregiver_data_task in caregiver_tasks_data:
+            new_caregiver_task = {
+                'caregiver_task_id': caregiver_data_task[0],
+                'task_description': caregiver_data_task[1],
+                'scheduled_date': caregiver_data_task[2],
+                'doctor_id': caregiver_data_task[4],
+                'status': caregiver_data_task[3],
+                'caregiver_id': caregiver_data_task[2]
+            }
+            caregiver_tasks.append(new_caregiver_task)
+    
+    # Render the patient page with tasks
+    return render_template('patient.html', 
+                           patient_data_dict=patient_data_dict, 
+                           patient_tasks=patient_tasks, 
+                           caregiver_tasks=caregiver_tasks)
+
+
+@app.route('/caregiver',methods=['GET', 'POST'])
+def caregiver():
+    if 'role' not in session or session['role'] != 'caregiver':
+        return redirect(url_for('login'))  # Redirect to login if not logged in
+    # Fetch doctor-specific data here, like doctor_id
+
+    
+    email = session.get('email')
+    caregiver_id = db.get_caregiver_id_by_email(email)
+    caregiver_data = db.get_caregiver_data(caregiver_id)
+    
+    caregiver_data_dict={
+        'caregiver_id':caregiver_data[0],
+        'first_name':caregiver_data[1],
+        'last_name':caregiver_data[2],
+        'email':caregiver_data[3],
+        'address':caregiver_data[6],
+        'phone_number':caregiver_data[5]
         
     }
     
-    return render_template('patient.html',patient_data_dict=patient_data_dict)
+    if request.method == 'POST':
+        task_id = request.form.get('task_id')
+        
+        if task_id:
+            success = db.update_caregiver_task_status(int(task_id), "Completed")
+            if success:
+                flash("Task marked as completed!", "success")
+            else:
+                flash("Failed to update task.", "error")
 
+        # Après la mise à jour, on redirige vers la même page pour afficher les tâches mises à jour
+        return redirect(url_for('caregiver'))
+    
+    # Fetch caregiver tasks
+    caregiver_tasks = []
+    caregiver_tasks_data = db.get_a_caregiver_All_tasks_Info(caregiver_id)
+    if caregiver_tasks_data is None:
+        flash("Error fetching caregiver tasks. Please try again later.", "error")
+    else:
+        for caregiver_data_task in caregiver_tasks_data:
+           
+            new_caregiver_task = {
+                'caregiver_task_id': caregiver_data_task[0],
+                'task_description': caregiver_data_task[1],
+                'scheduled_date': caregiver_data_task[2],
+                'doctor_id': caregiver_data_task[4],
+                'patient_id': caregiver_data_task[6],
+                'status': caregiver_data_task[3],
+                'caregiver_id': caregiver_data_task[2]
+            }
+            caregiver_tasks.append(new_caregiver_task)
+    
+    return render_template('caregiver.html',caregiver_data_dict=caregiver_data_dict,caregiver_tasks=caregiver_tasks)
+
+
+    
+    
 @app.route('/')
 @app.route('/index')
 def dashboard():

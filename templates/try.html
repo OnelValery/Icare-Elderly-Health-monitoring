@@ -1,304 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Icare Health Monitoring | Doctor Dashboard</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Tâches</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    button, input[type="submit"] {
+      padding: 8px 15px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover, input[type="submit"]:hover {
+      background-color: #218838;
+    }
+  </style>
 </head>
 <body>
 
-<header>
-    <!-- Header content (logo, navigation, etc.) -->
-</header>
+<h1>Welcome, {{ caregiver_data_dict['first_name'] }} {{ caregiver_data_dict['last_name'] }}</h1>
 
-<main class="container">
-    <h1>Welcome, Dr. {{ doctor_data_dict['first_name'] }} {{ doctor_data_dict['last_name'] }}</h1>
+<div>
+  <h2>Caregiver Information</h2>
+  <p><strong>Email:</strong> {{ caregiver_data_dict['email'] }}</p>
+  <p><strong>Phone:</strong> {{ caregiver_data_dict['phone_number'] }}</p>
+  <p><strong>Address:</strong> {{ caregiver_data_dict['address'] }}</p>
+</div>
 
-    <!-- Doctor Info Section -->
-    <div class="doctor-info">
-        <h2>Doctor Information</h2>
-        <p><strong>Name:</strong> Dr. {{ doctor_data_dict['first_name'] }} {{ doctor_data_dict['last_name'] }}</p>
-        <p><strong>Email:</strong> {{ doctor_data_dict['email'] }}</p>
-        <p><strong>Phone:</strong> {{ doctor_data_dict['phone_number'] }}</p>
-        <p><strong>Address:</strong> {{ doctor_data_dict['address'] }}</p>
-    </div>
+<h2>Task List</h2>
 
-    <!-- Patient List -->
-    <section class="patient-list">
-        <h2>Patient List</h2>
-
-        <!-- Form for adding a patient -->
-        <form method="POST">
-            <input type="text" name="patient_id" id="newPatientID" placeholder="Patient ID" required>
-            <button type="submit">+ Add Patient</button>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Task ID</th>
+      <th>Description</th>
+      <th>Scheduled Date</th>
+      <th>Doctor ID</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in caregiver_tasks %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ task['caregiver_task_id'] }}</td>
+      <td>{{ task['task_description'] }}</td>
+      <td>{{ task['scheduled_date'] }}</td>
+      <td>{{ task['doctor_id'] }}</td>
+      <td>{{ task['status'] }}</td>
+      <td>
+        {% if task['status'] != 'Completed' %}
+          <form method="POST" action="{{ url_for('caregiver') }}">
+            <input type="hidden" name="task_id" value="{{ task['caregiver_task_id'] }}">
+            <button type="submit" name="Done"  class="btn btn-danger btn-sm"
+                  onclick="return confirm('Are you sure you want to mark this task as Completed?')">
+                  Done
+        
         </form>
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Surname</th>
-                    <th>Firstname</th>
-                    <th>Patient ID</th>
-                    <th>Caregiver ID</th>
-                    <th>Patient #</th>
-                    <th>Patient Email</th>
-                    <th>Patient Address</th>
-                    <th>Caregiver Task</th>
-                    <th>Patient Task</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for patient in new_patient %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>{{ patient['last_name'] }}</td>
-                        <td>{{ patient['first_name'] }}</td>
-                        <td>{{ patient['patient_id'] }}</td>
-                        <td>{{ patient['caregiver_id']  }}</td>
-                        <td>{{ patient['phone_number'] }}</td>
-                        <td>{{ patient['patient_email'] }}</td>
-                        <td>{{ patient['patient_adress'] }}</td>
-                        <td>
-                            <button class="btn btn-primary see-caregiver-task-btn" 
-                                    data-patient-id="{{ patient['patient_id'] }}" 
-                                    data-doctor-id="{{ doctor_data_dict['id'] }}"
-                                    data-caregiver-id="{{ patient['caregiver_id'] }}">
-                                See Caregiver Task
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-secondary see-patient-task-btn" 
-                                    data-patient-id="{{ patient['patient_id'] }}" 
-                                    data-doctor-id="{{ doctor_data_dict['id'] }}">
-                                See Patient Task
-                            </button>
-                        </td>
-                        
-                        <td>
-                            <form method="POST" action="{{ url_for('doctor') }}">
-                                <input type="hidden" name="patient_id" value="{{ patient['patient_id'] }}">
-                                <button type="submit" name="remove_patient" class="btn btn-danger" 
-                                        onclick="return confirm('Are you sure you want to remove this patient?')">
-                                    Remove
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
-</main>
-
-<!-- Modal for Patient Tasks -->
-<div class="modal fade" id="patientTaskModal" tabindex="-1" role="dialog" aria-labelledby="patientTaskModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="patientTaskModalLabel">Patient Tasks</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <h5>Tasks for Patient: <span id="modalPatientName"></span></h5>
-          <ul id="taskList"></ul>
-          <button class="btn btn-success" id="createPatientTaskBtn">Create New Task</button>
-          <div id="createPatientTaskForm" style="display:none;">
-            <form id="createPatientTask">
-              <div class="form-group">
-                <label for="taskDescriptionPatient">Task Description</label>
-                <input type="text" class="form-control" id="taskDescriptionPatient" placeholder="Task Description" required>
-              </div>
-              <div class="form-group">
-                <label for="scheduleDatePatient">Schedule Date</label>
-                <input type="datetime-local" class="form-control" id="scheduleDatePatient" required>
-              </div>
-              <button type="submit" class="btn btn-primary">Create Task</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-</div>
-
-<!-- Modal for Caregiver Tasks -->
-<div class="modal fade" id="caregiverTaskModal" tabindex="-1" role="dialog" aria-labelledby="caregiverTaskModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="caregiverTaskModalLabel">Caregiver Tasks</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <h5>Tasks for Patient: <span id="modalPatientName"></span></h5>
-        <ul id="taskList"></ul>
-        <button class="btn btn-success" id="createCaregiverTaskBtn">Create New Task</button>
-        <div id="createCaregiverTaskForm" style="display:none;">
-          <form id="createCaregiverTask">
-            <div class="form-group">
-              <label for="taskDescriptionCaregiver">Task Description</label>
-              <input type="text" class="form-control" id="taskDescriptionCaregiver" placeholder="Task Description">
-            </div>
-            <div class="form-group">
-              <label for="scheduleDateCaregiver">Schedule Date</label>
-              <input type="datetime-local" class="form-control" id="scheduleDateCaregiver">
-            </div>
-            <button type="submit" class="btn btn-primary">Create Task</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<footer>
-    <!-- Footer content -->
-</footer>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<script>
-// Patient Task
-document.querySelectorAll('.see-patient-task-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const patientId = this.dataset.patientId; 
-        const doctorId = this.dataset.doctorId;
-
-        const patientName = `${this.closest('tr').querySelector('td:nth-child(2)').textContent} ${this.closest('tr').querySelector('td:nth-child(3)').textContent}`;
-        document.getElementById('modalPatientName').textContent = patientName;
-
-        fetch(`/get_patient_tasks/${patientId}`)
-            .then(response => response.json())
-            .then(data => {
-                const taskList = document.getElementById('taskList');
-                taskList.innerHTML = '';
-
-                if (data.tasks.length > 0) {
-                    data.tasks.forEach(task => {
-                        const li = document.createElement('li');
-                        li.textContent = `${task.name} - ${task.status}`;
-                        taskList.appendChild(li);
-                    });
-                } else {
-                    taskList.innerHTML = '<li>No tasks found.</li>';
-                }
-            });
-
-        $('#patientTaskModal').modal('show');
-    });
-});
-
-// Patient Task Create
-document.getElementById('createPatientTaskBtn').addEventListener('click', function() {
-    document.getElementById('createPatientTaskForm').style.display = 'block';
-});
-
-document.getElementById('createPatientTask').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const taskDescription = document.getElementById('taskDescriptionPatient').value;
-    const scheduleDate = document.getElementById('scheduleDatePatient').value;
-    const patientId = document.querySelector('.see-patient-task-btn').dataset.patientId;
-    const doctorId = document.querySelector('.see-patient-task-btn').dataset.doctorId;
-
-    fetch('/create_patient_task', {
-        method: 'POST',
-        body: JSON.stringify({
-            patientId: patientId,
-            description: taskDescription,
-            schedule_date: scheduleDate,
-            doctorId: doctorId
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert('Task created successfully!');
-        $('#patientTaskModal').modal('hide');
-    })
-    .catch(error => {
-        alert('Error creating task: ' + error);
-    });
-});
-
-// Caregiver Task
-document.querySelectorAll('.see-caregiver-task-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const patientId = this.dataset.patientId; 
-        const caregiverId = this.dataset.caregiverId; 
-        const doctorId = this.dataset.doctorId;
-
-        const patientName = `${this.closest('tr').querySelector('td:nth-child(2)').textContent} ${this.closest('tr').querySelector('td:nth-child(3)').textContent}`;
-        document.getElementById('modalPatientName').textContent = patientName;
-
-        fetch(`/get_caregiver_tasks/${caregiverId}/${patientId}`)
-            .then(response => response.json())
-            .then(data => {
-                const taskList = document.getElementById('taskList');
-                taskList.innerHTML = '';
-
-                if (data.tasks.length > 0) {
-                    data.tasks.forEach(task => {
-                        const li = document.createElement('li');
-                        li.textContent = `${task.name} - ${task.status}`;
-                        taskList.appendChild(li);
-                    });
-                } else {
-                    taskList.innerHTML = '<li>No tasks found.</li>';
-                }
-            });
-
-        $('#caregiverTaskModal').modal('show');
-    });
-});
-
-// Caregiver Task Create
-document.getElementById('createCaregiverTaskBtn').addEventListener('click', function() {
-    document.getElementById('createCaregiverTaskForm').style.display = 'block';
-});
-
-document.getElementById('createCaregiverTask').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const taskDescription = document.getElementById('taskDescriptionCaregiver').value;
-    const scheduleDate = document.getElementById('scheduleDateCaregiver').value;
-    const patientId = document.querySelector('.see-caregiver-task-btn').dataset.patientId;
-    const caregiverId = document.querySelector('.see-caregiver-task-btn').dataset.caregiverId;
-    const doctorId = document.querySelector('.see-caregiver-task-btn').dataset.doctorId;
-
-    fetch('/create_caregiver_task', {
-        method: 'POST',
-        body: JSON.stringify({
-            patientId: patientId,
-            caregiverId: caregiverId,
-            description: taskDescription,
-            schedule_date: scheduleDate,
-            doctorId: doctorId
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert('Task created successfully!');
-        $('#caregiverTaskModal').modal('hide');
-    })
-    .catch(error => {
-        alert('Error creating task: ' + error);
-    });
-});
-</script>
+        {% else %}
+        <button disabled>Completed</button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 </body>
 </html>

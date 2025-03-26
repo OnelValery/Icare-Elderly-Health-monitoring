@@ -7,182 +7,123 @@
     <link rel="stylesheet" href="../static/style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
-<body>
-    <header>
-        <div class="content flex_space">
-            <div class="logo">
-                <img src="images/icare_logo.png" height="80" alt="Icare Logo">
-            </div>
-            <div class="navlinks">
-                <ul id="menulist">
-                    <li><a href="dashboard.html" class="link active">Dashboard</a></li>
-                    <li><a href="#">Reports</a></li>
-                    <li><a href="#">Monitoring</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li><button class="btn white-btn" id="registerBtn" onclick="logout()">LOGOUT</button></li>
-                </ul>
-            </div>
-        </div>
-    </header>  
 
-    
-    <main class="container">
-        <h1>Caregiver Dashboard</h1>
-        <div class="caregiver-info">
-            <h2>Caregiver Information</h2>
-            <p><strong>Name:</strong> Dr. {{ caregiver_data_dict['first_name'] }} {{ caregiver_data_dict['last_name'] }}</p>
-            <p><strong>Email:</strong> {{ caregiver_data_dict['email'] }}</p>
-            <p><strong>Phone:</strong> {{ caregiver_data_dict['phone_number'] }}</p>
-            <p><strong>Adress:</strong> {{ caregiver_data_dict['address'] }}</p>
+<body>
+  <header>
+    <div class="content flex_space">
+        <div class="logo">
+            <img src="../images/icare_logo.png" height="80" alt="Icare Logo">
         </div>
-        <section class="patient-list">
-            <h2>Patient List</h2>
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Surname</th>
-                        <th>Firstname</th>
-                        <th>Patient ID</th>
-                        <th>Doctor ID</th>
-                        <th>Emergency #</th>
-                        <th>Task</th>
-                        <th>Task Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="patientTable"></tbody>
-            </table>
-            <input type="text" id="newSurname" placeholder="Surname">
-            <input type="text" id="newFirstname" placeholder="Firstname">
-            <input type="text" id="newPatientID" placeholder="Patient ID">
-            <input type="text" id="newDoctorID" placeholder="Doctor ID">
-            <input type="text" id="newEmergency" placeholder="Emergency #">
-            <button onclick="addPatient()">+ Add Patient</button>
-            <button onclick="removePatient()">- Remove Patient</button>
-        </section>
-    </main>
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let patients = [];
-            
-            function updatePatientTable() {
-                let table = document.getElementById("patientTable");
-                table.innerHTML = "";
-                patients.forEach((patient, index) => {
-                    let row = table.insertRow();
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${patient.surname}</td>
-                        <td>${patient.firstname}</td>
-                        <td><a href="#" onclick="showPatientInfo('${patient.id}')">${patient.id} (Clickable)</a></td>
-                        <td>${patient.doctor}</td>
-                        <td>${patient.emergency}</td>
-                        <td>
-                            <button onclick="toggleTaskList('${patient.id}')">See Tasks</button>
-                            <ul id="taskList-${patient.id}" style="display:none;"></ul>
-                            <input type="text" id="newTask-${patient.id}" placeholder="New Task">
-                            <button onclick="addTask('${patient.id}')">+</button>
-                        </td>
-                        <td>${patient.status}</td>
-                        <td><button onclick="removePatient('${patient.id}')">Remove</button></td>`;
-                });
-            }
-            
-            window.addPatient = function() {
-                let surname = document.getElementById("newSurname").value;
-                let firstname = document.getElementById("newFirstname").value;
-                let id = document.getElementById("newPatientID").value;
-                let doctor = document.getElementById("newDoctorID").value;
-                let emergency = document.getElementById("newEmergency").value;
-                if (surname && firstname && id && doctor && emergency) {
-                    patients.push({ id, surname, firstname, doctor, emergency, tasks: [], status: "Pending" });
-                    updatePatientTable();
-                    document.getElementById("newSurname").value = "";
-                    document.getElementById("newFirstname").value = "";
-                    document.getElementById("newPatientID").value = "";
-                    document.getElementById("newDoctorID").value = "";
-                    document.getElementById("newEmergency").value = "";
-                } else {
-                    alert("Please fill all fields.");
-                }
-            };
-            
-            window.removePatient = function(patientId) {
-                patients = patients.filter(patient => patient.id !== patientId);
-                updatePatientTable();
-            };
-            
-            window.showPatientInfo = function(patientId) {
-                let patient = patients.find(p => p.id === patientId);
-                alert(`Patient Information:\nName: ${patient.firstname} ${patient.surname}\nDoctor ID: ${patient.doctor}\nEmergency Contact: ${patient.emergency}`);
-            };
-            
-            window.addTask = function(patientId) {
-                let taskInput = document.getElementById(`newTask-${patientId}`);
-                let taskValue = taskInput.value;
-                if (taskValue) {
-                    let patient = patients.find(p => p.id === patientId);
-                    patient.tasks.push(taskValue);
-                    updatePatientTable();
-                    taskInput.value = "";
-                }
-            };
-            
-            window.toggleTaskList = function(patientId) {
-                let taskList = document.getElementById(`taskList-${patientId}`);
-                taskList.style.display = taskList.style.display === "none" ? "block" : "none";
-            };
-            
-            updatePatientTable();
-        });
-    </script>
+        <div class="navlinks">
+            <ul id="menulist">
+                <li><a href="index" class="link active">Home</a></li>
+                <li><a href="#">Reports</a></li>
+                <li><a href="#">Monitoring</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="logout" class="btn white-btn" id="logoutBtn">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</header> 
+
+<h1>Welcome, {{ caregiver_data_dict['first_name'] }} {{ caregiver_data_dict['last_name'] }}</h1>
+
+<div>
+  <h2>Caregiver Information</h2>
+  <p><strong>Name:</strong> {{ caregiver_data_dict['first_name'] }} {{ caregiver_data_dict['last_name'] }}</p>
+  <p><strong>Caregiver ID :</strong> {{ caregiver_data_dict['patient_id'] }}</p>
+  <p><strong>Email:</strong> {{ caregiver_data_dict['email'] }}</p>
+  <p><strong>Phone:</strong> {{ caregiver_data_dict['phone_number'] }}</p>
+  <p><strong>Address:</strong> {{ caregiver_data_dict['address'] }}</p>
+</div>
+
+
+<h2>Task List</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Task ID</th>
+      <th>Description</th>
+      <th>Scheduled Date</th>
+      <th>Doctor ID</th>
+      <th>Patient ID</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in caregiver_tasks %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ task['caregiver_task_id'] }}</td>
+      <td>{{ task['task_description'] }}</td>
+      <td>{{ task['scheduled_date'] }}</td>
+      <td>{{ task['doctor_id'] }} </td>
+      <td>{{ task['patient_id'] }} </td>
+      <td>{{ task['status'] }}</td>
+      <td>
+        {% if task['status'] != 'Completed' %}
+          <form method="POST" action="{{ url_for('caregiver') }}">
+            <input type="hidden" name="task_id" value="{{ task['caregiver_task_id'] }}">
+            <button type="submit"  class="btn btn-danger btn-sm"
+                  onclick="return confirm('Are you sure you want to mark this task as Completed?')">
+                  Done
+        
+        </form>
+        {% else %}
+        <button disabled>Completed</button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 <footer>
-    <div class="container grid">
-      <div class="box">
-        <img src="images/logo2.jpeg" alt="">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
-          aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-        <div class="icon">
-          <i class="fa fa-facebook-f"></i>
-          <i class="fa fa-instagram"></i>
-          <i class="fa fa-twitter"></i>
-          <i class="fa fa-youtube"></i>
-        </div>
-    </div>
-
+  <div class="container grid">
     <div class="box">
-        <h2>Links</h2>
-        <ul>
-          <li>Company History</li>
-          <li>About Us</li>
-          <li>Contact Us</li>
-          <li>Services</li>
-          <li>Privacy Policy</li>
-        </ul>
-    </div>
+      <img src="images/logo2.jpeg" alt="">
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+        aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 
-    <div class="box">
-        <h2>Contact Us</h2>
-        <p>Lorem ipsum dolor sit amet constur adipisicing elit sed do eiusmtem por incid.
-        </p>
-        <i class="fa fa-location-dot"></i>
-        <label>149, Unknown street, Ottawa,ON Canada. </label> <br>
-        <i class="fa fa-phone"></i>
-        <label>+1 (819) 930 9172</label> <br>
-        <i class="fa fa-envelope"></i>
-        <label>info@csi2132.ca</label> <br>
+      <div class="icon">
+        <i class="fa fa-facebook-f"></i>
+        <i class="fa fa-instagram"></i>
+        <i class="fa fa-twitter"></i>
+        <i class="fa fa-youtube"></i>
       </div>
+  </div>
+
+  <div class="box">
+      <h2>Links</h2>
+      <ul>
+        <li>Company History</li>
+        <li>About Us</li>
+        <li>Contact Us</li>
+        <li>Services</li>
+        <li>Privacy Policy</li>
+      </ul>
+  </div>
+
+  <div class="box">
+      <h2>Contact Us</h2>
+      <p>Lorem ipsum dolor sit amet constur adipisicing elit sed do eiusmtem por incid.
+      </p>
+      <i class="fa fa-location-dot"></i>
+      <label>149, Unknown street, Ottawa,ON Canada. </label> <br>
+      <i class="fa fa-phone"></i>
+      <label>+1 (819) 930 9172</label> <br>
+      <i class="fa fa-envelope"></i>
+      <label>info@csi2132.ca</label> <br>
     </div>
+  </div>
 </footer>
 
 <div class="legal">
-    <p class="container">Copyright (c) 2022 Copyright Holder All Rights Reserved.</p>
+  <p class="container">Copyright (c) 2022 Copyright Holder All Rights Reserved.</p>
 </div>
-
 
 </body>
 </html>

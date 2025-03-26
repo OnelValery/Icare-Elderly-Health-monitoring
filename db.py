@@ -157,6 +157,21 @@ class DB:
         
         # Return the patient data (None if no patient is found)
         return patient
+    except Exception as e:
+        # Log the error or raise it
+        print(f"Error fetching patient by ID: {e}")
+        return None
+      
+  def get_patient_name(self, patient_id):
+    try:
+        # Use parameterized query to avoid SQL injection
+        self.cursor.execute("SELECT fist_name, last_name FROM icare.patients WHERE patient_id = %s", (patient_id,))
+        
+        # Fetch the result (this will return a single row if the patient exists)
+        patient = self.cursor.fetchall()
+        
+        # Return the patient data (None if no patient is found)
+        return patient
     
     except Exception as e:
         # Log the error or raise it
@@ -475,7 +490,7 @@ class DB:
   def insert_phone_number_of_doctors(self, doctor_id, phone_number):
     self.cursor.execute(f"insert into icare.doctors_phone_numbers (doctor_id, phone_number) VALUES ('{doctor_id}', '{phone_number}')")
   
-  def update_phone_number_of_doctorss(self, doctor_id, phone_number):
+  def update_phone_number_of_doctors(self, doctor_id, phone_number):
     self.cursor.execute(f"UPDATE icare.doctors_phone_numbers SET phone_number = '{phone_number}' WHERE doctor_id = '{doctor_id}'")
 
 
@@ -559,6 +574,36 @@ class DB:
     """
     self.cursor.execute(query, (patient_id,))
     return self.cursor.fetchall()
+  
+  def get_patient_tasks_Info(self, patient_id):
+    query = """
+        SELECT *
+        FROM icare.patient_tasks
+        WHERE assigned_for = %s
+        ORDER BY scheduled_date DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
+  
+  def get_caregiver_tasks_Info(self, caregiver_id, patient_id):
+    query = """
+        SELECT *
+        FROM icare.caregiver_tasks
+        WHERE caregiver_id = %s AND patient_id = %s
+        ORDER BY scheduled_date DESC;
+    """
+    self.cursor.execute(query, (caregiver_id, patient_id))
+    return self.cursor.fetchall()
+  
+  def get_a_caregiver_All_tasks_Info(self, patient_id):
+    query = """
+        SELECT *
+        FROM icare.caregiver_tasks
+        WHERE caregiver_id = %s 
+        ORDER BY scheduled_date DESC;
+    """
+    self.cursor.execute(query, (patient_id,))
+    return self.cursor.fetchall()
 
   def update_patient_task_status(self, task_id, status):
     query = """
@@ -570,13 +615,19 @@ class DB:
     self.connection.commit()
 
   def update_caregiver_task_status(self, task_id, status):
-    query = """
+    try:
+      query = """
         UPDATE icare.caregiver_tasks
         SET status = %s
-        WHERE task_id = %s;
-    """
-    self.cursor.execute(query, (status, task_id))
-    self.connection.commit()
+        WHERE caregiver_task_id = %s;
+      """
+      self.cursor.execute(query, (status, task_id))
+      self.connection.commit()
+      return True
+    except Exception as e:
+        # Log any exceptions or errors that occurred
+        print(f"Error adding caregiver task: {e}")
+        return False
 
 db = DB(dbname, user, password, host, port, schema)
 db.new_connection()
