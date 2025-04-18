@@ -1,4 +1,4 @@
-#🩺 Icare – Smart Health Monitoring System
+###**🩺 Icare – Smart Health Monitoring System**
 
 Icare is a real-time health monitoring platform designed to bridge the gap between patients and healthcare professionals through wearable IoT technology. The system collects, processes, and visualizes vital health data to provide actionable insights and improve patient care.
 
