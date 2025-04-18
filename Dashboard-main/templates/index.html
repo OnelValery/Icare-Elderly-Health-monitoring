@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Icare Health Monitoring | Login & Register</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="content flex_space">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='images/icare_logo.png') }}" height="80" alt="Icare Logo">
+      </div>
+      <div class="navlinks">
+        <ul id="menulist">
+          <li><a href="{{ url_for('dashboard') }}" class="link active">Home</a></li>
+          <li><a href="#">Reports</a></li>
+          <li><a href="#">Monitoring</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="{{ url_for('login') }}" class="btn white-btn" id="registerBtn">Login</a></li>
+          <li><a href="{{ url_for('register') }}" class="btn white-btn" id="registerBtn">Register</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- Présentation professionnelle -->
+  <section class="presentation">
+    <div class="container">
+      <h2>Pourquoi choisir <span class="highlight">Icare Health Monitoring</span> ?</h2>
+      <p class="intro">
+        Icare est une solution numérique de surveillance de la santé conçue pour améliorer le bien-être des patients et faciliter le travail des professionnels de santé. Elle vous connecte aux données vitales essentielles, en temps réel, de manière simple et sécurisée.
+      </p>
+      
+      <div class="features">
+        <div class="feature-box">
+          <h3>📊 Surveillance intelligente</h3>
+          <p>Mesure en continu des constantes vitales telles que la fréquence cardiaque, la température corporelle ou encore le taux d’oxygène (SpO₂).</p>
+        </div>
+        <div class="feature-box">
+          <h3>🧑‍⚕️ Collaboration médicale</h3>
+          <p>Partage sécurisé des données entre patients, médecins et aidants pour un meilleur suivi à distance et une prise en charge proactive.</p>
+        </div>
+        <div class="feature-box">
+          <h3>📱 Accessibilité universelle</h3>
+          <p>Application responsive disponible sur ordinateur, tablette ou mobile, adaptée aux personnes âgées et à leur entourage.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Témoignages utilisateurs -->
+  <section class="testimonials">
+    <div class="container">
+      <h2>Ce que disent nos utilisateurs</h2>
+      
+      <div class="testimonial-box">
+        <p class="quote">“Grâce à Icare, mon médecin peut suivre mes constantes vitales en temps réel. Je me sens en sécurité, même à distance.”</p>
+        <p class="author">— Jean, 68 ans</p>
+      </div>
+      
+      <div class="testimonial-box">
+        <p class="quote">“En tant que médecin, Icare m’offre une vue globale sur l’évolution de la santé de mes patients. C’est un outil indispensable aujourd’hui.”</p>
+        <p class="author">— Dr Marie Lefèvre, cardiologue</p>
+      </div>
+      
+      <div class="testimonial-box">
+        <p class="quote">“Ma mère vit seule. Grâce à Icare, je peux suivre son état de santé en temps réel depuis mon téléphone. C’est rassurant.”</p>
+        <p class="author">— Amélie, aidante familiale</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function register() {
+      location.href = "{{ url_for('register') }}";
+    }
+    function login() {
+      location.href = "{{ url_for('login') }}";
+    }
+  </script>
+  
+  <footer>
+    <div class="container grid">
+      <div class="box">
+        <p>Icare est votre solution de surveillance de santé numérique, assurant une connexion fiable et sécurisée entre patients et professionnels de santé.</p>
+        <div class="icon">
+          <i class="fab fa-facebook-f"></i>
+          <i class="fab fa-instagram"></i>
+          <i class="fab fa-twitter"></i>
+          <i class="fab fa-youtube"></i>
+        </div>
+      </div>
+  
+      <div class="box">
+        <h2>Links</h2>
+        <ul>
+          <li>Company History</li>
+          <li>About Us</li>
+          <li>Contact Us</li>
+          <li>Services</li>
+          <li>Privacy Policy</li>
+        </ul>
+      </div>
+  
+      <div class="box">
+        <h2>Contact Us</h2>
+        <p>Pour toute demande d'information, n'hésitez pas à nous contacter.</p>
+        <i class="fas fa-location-dot"></i>
+        <label>149, Unknown street, Ottawa, ON Canada.</label> <br>
+        <i class="fas fa-phone"></i>
+        <label>+1 (819) 930 9172</label> <br>
+        <i class="fas fa-envelope"></i>
+        <label>info@icare.ca</label> <br>
+      </div>
+    </div>
+    <div class="legal">
+      <p class="container">Copyright (c) 2025 Copyright Holder All Rights Reserved.</p>
+    </div>
+  </footer>
+  
+  <script src="https://kit.fontawesome.com/032d11eac3.js" crossorigin="anonymous"></script>
+</body>
+</html>

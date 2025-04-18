@@ -1,0 +1,5 @@
+.env
+__pycache__/*
+extract_code_debug.py
+all_code_debug.txt
+.DS_Store

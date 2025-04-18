@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Icare Health Monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+
+    h1, h2 {
+      font-weight: 400;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    header {
+      background: linear-gradient(to right, #2980b9, #6dd5fa);
+      padding: 20px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      animation: slideDown 0.5s ease-in-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    header .logo img {
+      height: 60px;
+    }
+
+    header .navlinks ul {
+      display: flex;
+      gap: 25px;
+    }
+
+    header .navlinks ul li a {
+      font-weight: 500;
+      color: #ffffff;
+      padding: 8px 12px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header .navlinks ul li a:hover {
+      background-color: #ffffff;
+      color: #2980b9;
+      border-radius: 5px;
+    }
+
+    .info-section {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    .info-section h2 {
+      margin-bottom: 15px;
+    }
+
+    .info-section p {
+      margin: 5px 0;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #42a5f5, #478ed1);
+      color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px auto;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      max-width: 600px;
+      font-size: 1.1rem;
+      text-align: left;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .data-title {
+      font-weight: bold;
+    }
+
+    .data-value {
+      float: right;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.7);
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background: white;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 1000px;
+      border-radius: 10px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .ecg-container {
+      margin-top: 50px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    canvas {
+      width: 100%;
+      max-height: 400px;
+    }
+
+    footer {
+      background: linear-gradient(to right, #2980b9, #6dd5fa);
+      color: #ecf0f1;
+      padding: 20px 0;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    footer .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    footer .box {
+      width: 30%;
+    }
+
+    footer .box .icon i {
+      font-size: 20px;
+      margin-right: 15px;
+      color: #ffffff;
+    }
+
+    footer .box label {
+      color: #ecf0f1;
+      display: block;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="content flex_space">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='images/icare_logo.png') }}" alt="Icare Logo">
+      </div>
+      <div class="navlinks">
+        <ul id="menulist">
+          <li><a href="{{ url_for('dashboard') }}" class="link active">Home</a></li>
+          <li><a href="#">Reports</a></li>
+          <li><a href="#">Monitoring</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1>Icare Health Monitor</h1>
+
+    <!-- Patient Info -->
+    <div class="info-section">
+      <h2>Patient Information</h2>
+      <p><strong>Name:</strong> {{ patient.first_name }} {{ patient.last_name }}</p>
+      <p><strong>Email:</strong> {{ patient.email }}</p>
+      <p><strong>Phone:</strong> {{ patient.phone_number }}</p>
+      <p><strong>Address:</strong> {{ patient.address }}</p>
+    </div>
+
+    <!-- Device Info -->
+    <div class="info-section">
+      <h2>Device Information</h2>
+      <p><strong>Device ID:</strong> {{ device.id }}</p>
+      <p><strong>Battery:</strong> {{ device.battery }}%</p>
+    </div>
+
+    <!-- Cards -->
+    <div class="card" onclick="openModal('stepCount')">
+        <span class="data-title">Step Count:</span>
+        <span class="data-value" id="stepCount">0</span>
+        <div id="stepDate" style="margin-top: 5px; font-size: 0.9rem; font-weight: 300;">
+          <!-- Step date will go here -->
+        </div>
+    </div>
+
+    <div class="card" onclick="openModal('bpm')">
+      <span class="data-title">BPM:</span>
+      <span class="data-value" id="bpm">0</span>
+    </div>
+
+    <!-- <div class="card" onclick="openModal('temperature')">
+      <span class="data-title">Temperature:</span>
+      <span class="data-value" id="temperature">0 °C</span> 
+    </div> -->
+
+    <div class="card" onclick="openModal('spo2')">
+      <span class="data-title">SpO₂:</span>
+      <span class="data-value" id="spo2">0 %</span>
+    </div>
+
+    <div class="card" id="fallCard" onclick="openModal('fall')">
+        <span class="data-title">Fall Detection:</span>
+        <span class="data-value" id="fall">No</span>
+        <div id="fallDetails" style="margin-top: 10px; font-size: 0.95rem;"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="modal-title"></h2>
+        <canvas id="chartCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- ECG Section -->
+    <div class="ecg-container">
+      <h2>Heart Rate Signal</h2>
+      <canvas id="ecgChart"></canvas>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="box">
+        <img src="{{ url_for('static', filename='images/icare_logo.png') }}" height="60" alt="Icare Logo">
+        <div class="icon">
+          <i class="fab fa-facebook-f"></i>
+          <i class="fab fa-instagram"></i>
+          <i class="fab fa-twitter"></i>
+          <i class="fab fa-youtube"></i>
+        </div>
+      </div>
+      <div class="box">
+        <h2>Quick Links</h2>
+        <ul>
+          <li>Company History</li>
+          <li>About Us</li>
+          <li>Contact Us</li>
+          <li>Services</li>
+          <li>Privacy Policy</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h2>Contact Us</h2>
+        <label>149, Unknown Street, Ottawa, ON Canada</label>
+        <label>+1 (819) 930 9172</label>
+        <label>info@icare.ca</label>
+      </div>
+    </div>
+    <div class="legal">
+      <p class="container">Copyright (c) 2025 Copyright Holder All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const chartData = {
+      stepCount: { labels: [], data: [] },
+      bpm: { labels: [], data: [] },
+      //temperature: { labels: [], data: [] },
+      spo2: { labels: [], data: [] },
+      fall: { labels: [], data: [] }
+    };
+
+    let currentChart = null;
+    let chartInterval = null;  
+    const patientId = "{{ patient.id }}"; 
+    const MAX_POINTS = 500;
+
+    const ecgCtx = document.getElementById('ecgChart').getContext('2d');
+    const ecgChart = new Chart(ecgCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'PPG Signal',
+          data: [],
+          borderColor: '#2596BE',
+          borderWidth: 2,
+          fill: false,
+          pointRadius: 0,
+          tension: 0.2
+        }]
+      },
+      options: {
+        animation: { duration: 200, easing: 'linear' },
+        responsive: true,
+        scales: {
+          x: { type: 'linear', display: true, min: 0, max: MAX_POINTS },
+          y: { display: true, beginAtZero: false, ticks: { autoSkip: true } }
+        }
+      }
+    });
+
+    function fetchAndUpdateChart(type) {
+    fetch(`/historical_data/${patientId}/${type}`)
+        .then(response => response.json())
+        .then(data => {
+        if (currentChart) {
+            currentChart.data.labels = data.labels;
+            currentChart.data.datasets[0].data = data.values;
+            currentChart.update();
+        }
+        })
+        .catch(console.error);
+    }
+
+    function openModal(type) {
+        document.getElementById('modal').style.display = 'block';
+        document.getElementById('modal-title').innerText = type.toUpperCase();
+
+        if (currentChart) {
+            currentChart.destroy();
+            currentChart = null;
+        }
+
+        const canvas = document.getElementById('chartCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize empty chart
+        currentChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: [],
+            datasets: [{
+                label: `${type.toUpperCase()} History`,
+                data: [],
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+            },
+            options: {
+            responsive: true,
+            scales: {
+                x: {
+                display: true,
+                title: { display: true, text: 'Time' }
+                },
+                y: {
+                display: true,
+                title: { display: true, text: type.toUpperCase() }
+                }
+            }
+            }
+        });
+
+        fetchAndUpdateChart(type); 
+        chartInterval = setInterval(() => fetchAndUpdateChart(type), 3000); 
+        }
+
+        function updateData() {
+            fetch('/data/{{ patient.id }}')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);  
+
+                    console.log("Full /data response:", data);
+
+                    document.getElementById('stepCount').textContent = data.stepCount;
+                    if (data.stepDate) {
+                    document.getElementById('stepDate').textContent = `for ${data.stepDate}`;
+                    } else {
+                    document.getElementById('stepDate').textContent = '';
+                    }
+
+                    document.getElementById('bpm').textContent = data.bpm;
+                    document.getElementById('spo2').textContent = `${data.spo2} %`;
+
+                    const fall = data.fall;
+                    const fallCard = document.getElementById('fallCard');
+                    const fallText = fall ? 'Yes' : 'No';
+                    const fallDetails = document.getElementById('fallDetails');
+
+                    document.getElementById('fall').textContent = fallText;
+                    fallCard.style.background = fall
+                        ? 'linear-gradient(135deg, #ff4e4e, #c0392b)'
+                        : 'linear-gradient(135deg, #42a5f5, #478ed1)';
+
+                    console.log("Fall status:", fall);
+                    console.log("Latitude:", data.latitude, "Longitude:", data.longitude);
+
+                    const lat = data.latitude;
+                    const lon = data.longitude;
+
+                    if (fall && lat && lon) {
+                        const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+                        fallDetails.innerHTML = `
+                            📍 <strong>Location:</strong> ${lat}, ${lon}<br>
+                            <a href="${mapLink}" target="_blank">View on Map</a><br>
+                            <strong>Help is on the way!</strong>
+                        `;
+                    } else {
+                        fallDetails.innerHTML = '';
+                    }
+
+                    // Update ECG waveform
+                    ecgChart.data.datasets[0].data = data.waveform.map((value, index) => ({ x: index, y: value }));
+                    ecgChart.options.scales.x.max = data.waveform.length;
+                    ecgChart.update();
+                })
+                .catch(console.error);
+        }
+
+    setInterval(updateData, 500);
+    
+    function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    if (currentChart) {
+        currentChart.destroy();
+        currentChart = null;
+    }
+    clearInterval(chartInterval);
+    chartInterval = null;
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('modal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+  </script>
+
+</body>
+</html>
