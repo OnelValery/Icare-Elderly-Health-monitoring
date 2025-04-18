@@ -1,36 +1,43 @@
 
-### **🎬 Movie Recommendation System**
+### **🩺 Icare – Smart Health Monitoring System**
 
-This project implements a movie recommendation system using a dataset to predict movies based on user preferences. The recommendation engine is developed in four different programming languages (Java, Go, Prolog, and Scheme), showcasing different paradigms and approaches to the task.
+Icare is a real-time health monitoring platform designed to bridge the gap between patients and healthcare professionals through wearable IoT technology. The system collects, processes, and visualizes vital health data to provide actionable insights and improve patient care.
 
 **🚀 Project Overview**
 
-This system uses collaborative filtering techniques and data from the X dataset to recommend movies to users. The recommendation system is implemented in Java, Go, Prolog, and Scheme, each demonstrating unique features and advantages in handling the data.
+This project was developed as part of a final-year Computer Engineering course at the University of Ottawa. Icare integrates a full-stack web application with IoT sensor data to deliver a smart healthcare experience.
 
 **📦 Features**
 
-- Movie recommendation based on user preferences
-- Data handling using multiple programming languages
-- Various recommendation techniques (collaborative filtering, content-based)
-- Language-specific implementations for comparison
+- Real-time health monitoring
+- Wearable device integration
+- RESTful API backend for data ingestion and management
+- Dynamic dashboard for real-time visualization
+- Patient health history tracking
+- Fall detection & alerts
 
 **🔧 Technologies Used**
 
-**- Java:** Object-Oriented Programming for handling recommendations and user data
+**- Frontend:** HTML, CSS, JavaScript
 
-**- Go:** Concurrent programming to efficiently handle multiple user queries
+**- Backend:** Python, Flask
 
-**- Prolog:** Logic programming for defining rules and handling user preferences
+**- Database:** PostgreSQL
 
-**- Scheme:** Functional programming for a minimalist approach to recommendation logic
+**- APIs:** RESTful API architecture
 
-**📊 Dataset Used**
+**Data:**
 
-- X dataset, which includes movie information like genres, ratings, and user preferences
+- Accelerometer
+- Gyroscope
+- Heart Rate
+- Temperature
+- SpO2
+
+**Fall Detection**
 
 **🧠 Key Functionalities**
-
-- 📚 Recommendation algorithms in Java, Go, Prolog, and Scheme
-- 🔍 Efficient querying and data processing
-- 🧑‍🤝‍🧑 Collaborative filtering and content-based techniques
-- 🎬 Movie suggestions based on user input and historical data
+- 📡 Receives sensor data from wearable devices
+- 🧾 Structures and stores data in a relational PostgreSQL database
+- ⚙️ Visualizes trends like heart rate, steps, falls, and vitals in real-time
+- 📈 Offers health analytics for patients and caregivers
